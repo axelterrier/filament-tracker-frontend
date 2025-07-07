@@ -1,0 +1,42 @@
+# Node / npm
+/node_modules
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build output
+/dist
+/www
+/.sourcemaps
+
+# Ionic / Capacitor
+/platforms
+/plugins
+/.ionic
+/android
+/ios
+
+# Environment
+.env
+.env.*.local
+
+# IDE / Editor
+.vscode/
+!.vscode/extensions.json
+.idea/
+/*History*/            # si tu utilises des extensions de fichiers historiques
+
+# OS files
+.DS_Store
+Thumbs.db
+$RECYCLE.BIN/
+*.swp
+*~
+
+# Logs & coverage
+*.log
+log.txt
+/coverage
+
+# Misc
+.tmp

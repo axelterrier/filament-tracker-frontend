@@ -1,0 +1,26 @@
+{
+    "login": {
+      "title": "Login",
+      "username": "Username",
+      "usernamePlaceHolder": "Enter your username",
+      "password": "Password",
+      "passwordPlaceHolder": "Enter your password",
+      "submit": "Log in",
+      "error": "Login failed"
+    },
+    "menu": {
+      "title": "Main menu",
+      "home": "Home",
+      "settings": "Settings"
+    },
+    "settings": {
+      "title": "Settings",
+      "theme": "Dark theme",
+      "language": "Language",
+      "units": "Units",
+      "cancel": "Cancel",
+      "metric": "Metric",
+      "imperial": "Imperial"
+    }
+  }
+  
