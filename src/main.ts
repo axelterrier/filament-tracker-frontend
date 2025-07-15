@@ -67,3 +67,7 @@ router.isReady().then(() => {
 const stored = localStorage.getItem('dark');
 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 setDarkTheme(stored === null ? prefersDark : stored === 'true');
+
+fetch('http://localhost:5000/api/filaments')
+  .then(res => res.json())
+  .then(data => console.log(data));

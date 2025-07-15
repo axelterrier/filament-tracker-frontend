@@ -10,18 +10,17 @@
     </ion-header>
 
     <ion-content fullscreen>
-      <div id="container">
-        <ion-list>
-          <ion-item lines="none">
-            <ion-label>{{ t('settings.theme') }}</ion-label>
-            <ion-toggle slot="end" v-model="dark" />
-          </ion-item>
-        </ion-list>
-        <!-- Remplace ce contenu par ton dashboard réel -->
-      </div>
+        <FilamentTable />
+        <!-- MODIFIER CE BOUTON POUR AVOIR UNE POP UP D'AJOUT MANUEL OU VIA LE CAPTEUR RFID -->
+        <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+          <ion-fab-button @click="$router.push('/manual')">
+            <ion-icon name="add-outline" />
+          </ion-fab-button>
+        </ion-fab>
     </ion-content>
   </ion-page>
 </template>
+
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
@@ -31,6 +30,7 @@ import {
 } from '@ionic/vue';
 import { useI18n } from 'vue-i18n';
 import { setDarkTheme } from '@/main';
+import FilamentTable from '@/components/FilamentTable.vue';
 
 const { t } = useI18n();
 const dark = ref(localStorage.getItem('dark') === 'true');
