@@ -42,6 +42,8 @@
   "addFilament": {
     "title": "Ajout manuel",
     "sectionTypeColor": "Type & Couleur",
+    "brand": "Marque",
+    "brandPlaceholder": "Fournisseur",
     "type": "Type",
     "typePlaceholder": "Choisir un type",
     "typeDetailed": "Type détaillé",
@@ -66,7 +68,8 @@
     "dryTimeMinutesPlaceholder": "240",
     "dryBedTemp": "Température lit séchage (°C)",
     "dryBedTempPlaceholder": "60",
-    "submit": "Ajouter le filament"
+    "submit": "Ajouter le filament",
+    "supportMaterial": "Matériau de support"
     },
   "errors": {
     "network": "Erreur de connexion au réseau",

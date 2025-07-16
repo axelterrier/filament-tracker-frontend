@@ -42,6 +42,8 @@
   "addFilament": {
     "title": "Add Filament",
     "sectionTypeColor": "Type & Color",
+    "brand": "Brand",
+    "brandPlaceholder": "Choose a manufacturer",
     "type": "Type",
     "typePlaceholder": "Choose a type",
     "typeDetailed": "Detailed type",
@@ -66,7 +68,8 @@
     "dryTimeMinutesPlaceholder": "240",
     "dryBedTemp": "Dry bed temperature (°C)",
     "dryBedTempPlaceholder": "60",
-    "submit": "Add filament"
+    "submit": "Add filament",
+    "supportMaterial": "Support material"
   },
   "errors": {
     "network": "Network connection error",
