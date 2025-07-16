@@ -23,19 +23,36 @@
 
 
 <script setup lang="ts">
+// Core Imports
 import { ref, watch } from 'vue';
+
+// Ionic Components
 import {
-  IonPage, IonHeader, IonToolbar, IonButtons, IonMenuButton,
-  IonTitle, IonContent, IonList, IonItem, IonLabel, IonToggle
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonMenuButton,
+  IonTitle,
+  IonContent,
 } from '@ionic/vue';
+
 import { useI18n } from 'vue-i18n';
 import { setDarkTheme } from '@/main';
+
+// Custom Components
 import FilamentTable from '@/components/FilamentTable.vue';
 
+// Localization
 const { t } = useI18n();
+
+// Reactive State
 const dark = ref(localStorage.getItem('dark') === 'true');
+
+// Watchers
 watch(dark, (isDark) => setDarkTheme(isDark));
 </script>
+
 
 <style scoped>
 #container {

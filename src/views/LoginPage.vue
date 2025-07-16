@@ -20,7 +20,7 @@
                     <ion-input
                       v-model="username"
                       type="text"
-                      :placeholder="t('login.usernamePlaceHolder')"
+                      :placeholder="t('login.usernamePlaceholder')"
                       clear-input
                       autocomplete="username"
                     />
@@ -32,7 +32,7 @@
                     <ion-input
                       v-model="password"
                       type="password"
-                      :placeholder="t('login.passwordPlaceHolder')"
+                      :placeholder="t('login.passwordPlaceholder')"
                       clear-input
                       autocomplete="current-password"
                     />

@@ -19,7 +19,7 @@
           <ion-menu-toggle auto-hide="false">
             <ion-item routerLink="/statistic" routerDirection="root" lines="none">
               <ion-icon slot="start" :icon="statsChartOutline" />
-              <ion-label>{{ t('menu.statistic') }}</ion-label>
+              <ion-label>{{ t('menu.statistics') }}</ion-label>
             </ion-item>
           </ion-menu-toggle>
   
@@ -34,7 +34,7 @@
           <ion-menu-toggle auto-hide="false">
             <ion-item routerLink="/login" routerDirection="root" lines="none">
               <ion-icon slot="start" :icon="logInOutline" color="danger"/>
-              <ion-label>{{ t('menu.disconnect') }}</ion-label>
+              <ion-label>{{ t('menu.logout') }}</ion-label>
             </ion-item>
           </ion-menu-toggle>
 

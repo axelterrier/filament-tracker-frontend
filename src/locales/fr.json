@@ -1,30 +1,132 @@
 {
-    "login": {
-      "title": "Connexion",
-      "username": "Pseudo de l'utilisateur",
-      "usernamePlaceHolder": "Entre ton pseudo",
-      "password": "Mot de passe",
-      "passwordPlaceHolder": "Entre ton mot de passe",
-      "submit": "Se connecter",
-      "error": "Échec de la connexion"
+  "common": {
+    "cancel": "Annuler",
+    "submit": "Valider",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "save": "Enregistrer"
+  },
+  "login": {
+    "title": "Connexion",
+    "username": "Pseudo de l'utilisateur",
+    "usernamePlaceholder": "Entre ton pseudo",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "Entre ton mot de passe",
+    "submit": "Se connecter",
+    "error": "Échec de la connexion"
+  },
+  "menu": {
+    "title": "Menu principal",
+    "home": "Accueil",
+    "statistics": "Statistiques",
+    "settings": "Paramètres",
+    "logout": "Déconnexion"
+  },
+  "home": {
+    "title": "Accueil",
+    "welcome": "Bienvenue sur votre dashboard"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "theme": "Thème sombre",
+    "language": "Langue",
+    "languages": {
+      "fr": "Français",
+      "en": "English"
     },
-    "menu": {
-        "title": "Menu principal",
-        "home": "Accueil",
-        "statistic": "Statistiques",
-        "settings": "Paramètres",
-        "disconnect": "Déconnexion"
+    "units": "Unité de mesure",
+    "metric": "Métrique",
+    "imperial": "Impérial",
+    "cancel": "Annuler"
+  },
+  "addFilament": {
+    "title": "Ajout manuel",
+    "sectionTypeColor": "Type & Couleur",
+    "type": "Type",
+    "typePlaceholder": "Choisir un type",
+    "typeDetailed": "Type détaillé",
+    "typeDetailedPlaceholder": "Choisir un type détaillé",
+    "color": "Couleur",
+    "colorPlaceholder": "#28fc9e",
+    "extraColorInfo": "Infos couleur",
+    "extraColorInfoPlaceholder": "ex: White Pearl",
+    "sectionPhysical": "Caractéristiques physiques",
+    "diameter": "Diamètre (mm)",
+    "diameterPlaceholder": "1.75",
+    "weight": "Poids (g)",
+    "weightPlaceholder": "1000",
+    "sectionTemps": "Températures",
+    "printTempMin": "Température impression minimum",
+    "printTempMinPlaceholder": "170",
+    "printTempMax": "Température impression maximum",
+    "printTempMaxPlaceholder": "230",
+    "dryTemp": "Séchage (°C)",
+    "dryTempPlaceholder": "55",
+    "dryTimeMinutes": "Temps séchage (min)",
+    "dryTimeMinutesPlaceholder": "240",
+    "dryBedTemp": "Température lit séchage (°C)",
+    "dryBedTempPlaceholder": "60",
+    "submit": "Ajouter le filament"
     },
-    "home": {
-        "title": "Accueil"
-    },
-    "settings": {
-        "title": "Paramètres",
-        "theme": "Thème sombre",
-        "language": "Langue",
-        "units": "Unité de mesure",
-        "cancel": "Annuler",
-        "metric": "Métrique",
-        "imperial": "Impérial"
-      }
+  "errors": {
+    "network": "Erreur de connexion au réseau",
+    "notFound": "Page non trouvée"
+  },
+  "filamentDetail": {
+    "title": "Détail du filament",
+    "uid": "UID",
+    "unknownType": "Type inconnu",
+    "general": "Information générale",
+    "type": "Matériau",
+    "colorLabel": "Couleur",
+    "physical": "Propriétés physiques",
+    "diameter": "Diamètre",
+    "spoolWeight": "Poids bobine",
+    "spoolWidth": "Largeur bobine",
+    "filamentLength": "Longueur filament",
+    "nozzleDiameter": "Type buse",
+    "xcamInfo": "XCAM info",
+    "temperatures": "Information de températures",
+    "printTemp": "Température impression",
+    "dryInfo": "Séchage",
+    "chamber": "Chambre",
+    "bed": "Lit",
+    "metadata": "Métadonnées du filament",
+    "manufactureDate": "Date fabrication",
+    "shortDate": "Date courte",
+    "addedAt": "Ajouté le",
+    "trayUid": "Tray UID",
+    "tagManufacturer": "Fabricant Tag",
+    "loading": "Chargement…",
+    "na": "N/A"
+  },
+  "filamentEdit": {
+    "title": "Éditer le filament",
+    "uid": "UID",
+    "trayUid": "Tray UID",
+    "tagManufacturer": "Fabricant tag",
+    "type": "Type",
+    "detailedType": "Type détaillé",
+    "colorCode": "Code couleur",
+    "extraColorInfo": "Infos couleur",
+    "diameter": "Diamètre (mm)",
+    "spoolWidth": "Largeur bobine (mm)",
+    "spoolWeight": "Poids bobine (g)",
+    "filamentLength": "Longueur filament (m)",
+    "printTempMin": "Temp. impression min (°C)",
+    "printTempMax": "Temp. impression max (°C)",
+    "dryTemp": "Temp. séchage (°C)",
+    "dryTimeMinutes": "Temps séchage (min)",
+    "dryBedTemp": "Temp. lit séchage (°C)",
+    "nozzleDiameter": "Diamètre buse (mm)",
+    "xcamInfo": "XCAM info",
+    "manufactureDatetime": "Date fabrication (UTC)",
+    "manufactureDatetimePlaceholder": "YYYY-MM-DD HH:mm:ss",
+    "shortDate": "Date courte",
+    "save": "Enregistrer",
+    "loading": "Chargement…"
+  },
+  "statistics": {
+    "title": "Statistiques"
   }
+}
