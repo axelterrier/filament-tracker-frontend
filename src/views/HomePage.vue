@@ -10,13 +10,26 @@
     </ion-header>
 
     <ion-content fullscreen>
-        <FilamentTable />
-        <!-- MODIFIER CE BOUTON POUR AVOIR UNE POP UP D'AJOUT MANUEL OU VIA LE CAPTEUR RFID -->
-        <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <FilamentTable />
+      <!-- MODIFIER CE BOUTON POUR AVOIR UNE POP UP D'AJOUT MANUEL OU VIA LE CAPTEUR RFID -->
+      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <!-- Bouton principal -->
+        <ion-fab-button>
+          <ion-icon :icon="addOutline" />
+        </ion-fab-button>
+
+        <!-- Liste de sous‑boutons qui “pop” au-dessus -->
+        <ion-fab-list side="top">
+          <!-- Bouton “main” -->
           <ion-fab-button @click="$router.push('/manual')">
-            <ion-icon name="add-outline" />
+            <ion-icon :icon="handLeftOutline" />
           </ion-fab-button>
-        </ion-fab>
+          <!-- Bouton “JSON” -->
+          <ion-fab-button @click="$router.push('/drag-and-drop')">
+            <ion-icon :icon="codeOutline" />
+          </ion-fab-button>
+        </ion-fab-list>
+      </ion-fab>
     </ion-content>
   </ion-page>
 </template>
@@ -42,6 +55,7 @@ import { setDarkTheme } from '@/main';
 
 // Custom Components
 import FilamentTable from '@/components/FilamentTable.vue';
+import { addOutline, codeOutline, handLeftOutline } from 'ionicons/icons';
 
 // Localization
 const { t } = useI18n();

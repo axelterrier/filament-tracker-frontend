@@ -8,7 +8,9 @@
                 <ion-item v-for="filament in filaments" :key="filament.id" class="ion-text-wrap">
                     <!-- Infos -->
                     <ion-label>
-                        <h2><strong>{{ filament.filament_type }} {{ filament.filament_detailed_type || "" }}</strong></h2>
+                        <h2>
+                            <strong>{{ filament.filament_detailed_type || filament.filament_type }}</strong>
+                        </h2>
                         <p>
                             <strong>Ø :</strong> {{ filament.filament_diameter }} mm |
                             <strong>Poids :</strong> {{ filament.spool_weight }} g |
@@ -30,14 +32,9 @@
                     }" :title="filament.color_code" slot="end" />
 
                     <!-- Bouton pour afficher les actions -->
-                    <ion-button
-                      fill="clear"
-                      size="small"
-                      slot="end"
-                      @click="toggleActions(filament.id)"
-                      :style="{ transition: 'transform 0.2s ease', transform: openActionId === filament.id ? 'rotate(-180deg)' : 'rotate(0deg)' }"
-                    >
-                      <ion-icon :icon="chevronForward" />
+                    <ion-button fill="clear" size="small" slot="end" @click="toggleActions(filament.id)"
+                        :style="{ transition: 'transform 0.2s ease', transform: openActionId === filament.id ? 'rotate(-180deg)' : 'rotate(0deg)' }">
+                        <ion-icon :icon="chevronForward" />
                     </ion-button>
 
                     <!-- Actions conditionnelles -->

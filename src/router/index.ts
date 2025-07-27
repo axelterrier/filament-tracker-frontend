@@ -7,6 +7,7 @@ import StatisticPage from '@/views/StatisticPage.vue'
 import AddManual from '@/views/AddManualPage.vue'
 import DetailPage from '@/views/DetailPage.vue';
 import EditPage from '@/views/EditPage.vue';
+import DragAndDropPage from '@/views/DragAndDropPage.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -47,6 +48,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/edit/:id',
     name: 'Edit',
     component: EditPage
+  },
+  {
+    path: '/drag-and-drop',
+    name: 'DragAndDrop',
+    component: DragAndDropPage
   }
 ]
 
