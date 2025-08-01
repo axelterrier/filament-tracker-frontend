@@ -8,6 +8,7 @@ import AddManual from '@/views/AddManualPage.vue'
 import DetailPage from '@/views/DetailPage.vue';
 import EditPage from '@/views/EditPage.vue';
 import DragAndDropPage from '@/views/DragAndDropPage.vue';
+import AnalyseProjectPage from '@/views/AnalyseProjectPage.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -53,6 +54,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/drag-and-drop',
     name: 'DragAndDrop',
     component: DragAndDropPage
+  },
+  {
+    path: '/3mf-analyse',
+    name: 'AnalyseProjectPage',
+    component: AnalyseProjectPage
   }
 ]
 
