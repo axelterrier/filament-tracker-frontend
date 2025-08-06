@@ -30,7 +30,7 @@
             <ion-grid class="analysis-grid">
                 <ion-row>
                     <ion-col size="12" size-md="6">
-                        <ion-list>
+                        <ion-list style="border-radius: 14px;">
                             <ion-list-header>
                                 <ion-label>Filaments requis vs stock</ion-label>
                             </ion-list-header>
@@ -45,7 +45,7 @@
 
                             <!-- Lignes -->
                             <ion-item v-for="(m, idx) in matches" :key="idx"
-                                :class="{ missing: m.status === 'missing' }" lines="full">
+                                :class="{ missing: m.status === 'missing' }" lines="inset">
                                 <div class="col required-col">
                                     <div class="line">
                                         <div class="material-block">
@@ -62,21 +62,28 @@
                                 <div class="col arrow-col">
                                     <ion-icon :icon="arrowForwardOutline" />
                                 </div>
-
                                 <div class="col stock-col">
                                     <div class="line">
                                         <div class="material-block">
                                             <div class="name">
-                                                <div v-if="m.match">
-                                                    {{ m.match.filament_detailed_type }}
-                                                </div>
-                                                <div v-else class="material">Manquant</div>
-
+                                                <ion-select v-model="selectedAlternatives[idx]" :placeholder="m.match
+                                                    ? m.match.filament_detailed_type
+                                                    : 'Choisir un matériau'" interface="popover">
+                                                    <ion-select-option
+                                                        v-for="opt in stockByFamily[normalizeMaterial(materials[idx]).split(' ')[0]] || []"
+                                                        :key="opt" :value="opt">
+                                                        {{ opt }}
+                                                    </ion-select-option>
+                                                </ion-select>
                                             </div>
+
+                                            <!-- on conserve l'affichage de la sous-info couleur si on a un match -->
                                             <div class="sub" v-if="m.match && m.match.color">
-                                                <small>{{ normalizeHex(m.match.color) || m.match.color }}</small>
+                                                <small>{{ normalizeHex(m.match.color) }}</small>
                                             </div>
                                         </div>
+                                        <!-- la pastille couleur -->
+
                                         <div class="swatch" :style="m.match
                                             ? { backgroundColor: m.match.color }
                                             : { backgroundColor: 'transparent', border: '1px dashed #999' }"></div>
@@ -93,9 +100,42 @@
                         </ion-list>
                     </ion-col>
 
-                    <!-- Colonne droite vide / pour détails complémentaires -->
-                    <ion-col size="12" size-md="6" class="right-panel">
-                        <!-- Tu peux mettre ici un aperçu, résumé, actions, etc. -->
+                    <ion-col size="12" size-md="6" class="middle-panel">
+                        <ion-list  style="border-radius: 14px;" lines="none">
+                        <ion-card style="box-shadow: none">
+                            <ion-card-header>
+                                <ion-card-title>Détails du projet</ion-card-title>
+                            </ion-card-header>
+                            <ion-card-content>
+                                <ion-grid>
+                                    <!-- Nombre de pièces -->
+                                    <ion-row class="ion-align-items-center ion-justify-content-between">
+                                        <ion-col size="auto">
+                                            <strong>Nombre de pièces :</strong>
+                                        </ion-col>
+                                        <ion-col size="auto">
+                                            <ion-badge color="primary" font-size="1.2rem">{{ piecesCount }}</ion-badge>
+                                        </ion-col>
+                                    </ion-row>
+
+                                    <!-- Matériaux utilisés -->
+                                    <ion-row class="ion-margin-top">
+                                        <ion-col>
+                                            <strong>Matériaux utilisés</strong>
+                                        </ion-col>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-col>
+                                            <ion-chip v-for="(mat, idx) in uniqueMaterials" :key="idx" outline
+                                                class="ion-margin-end ion-margin-bottom">
+                                                <ion-label>{{ mat }}</ion-label>
+                                            </ion-chip>
+                                        </ion-col>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-card-content>
+                        </ion-card>
+                    </ion-list>
                     </ion-col>
                 </ion-row>
             </ion-grid>
@@ -107,7 +147,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+
+import { ref, computed, onMounted, reactive } from 'vue'
 import {
     IonPage,
     IonHeader,
@@ -120,6 +161,8 @@ import {
     IonItem,
     IonLabel,
     IonSpinner,
+    IonSelect,
+    IonSelectOption
 } from '@ionic/vue'
 import { cloudUploadOutline, arrowForwardOutline } from 'ionicons/icons'
 
@@ -131,6 +174,9 @@ const colors = ref([])
 const materials = ref([])
 const errorMsg = ref('')
 const stockFilaments = ref([])
+const piecesCount = ref([])
+const uniqueMaterials = ref([])
+const selectedAlternatives = reactive({})
 
 // --- config ---
 const DEBUG = true
@@ -189,18 +235,39 @@ function materialMatches(required, stock) {
 // --- chargement du stock ---
 const loadStock = async () => {
     try {
-        const res = await fetch('http://localhost:5000/api/filaments')
-        if (!res.ok) throw new Error(`Échec récupération stock (${res.status})`)
-        const json = await res.json()
-        stockFilaments.value = Array.isArray(json) ? json : []
-        if (DEBUG) {
-            console.log('Stock filaments loaded:', stockFilaments.value)
-        }
+        const res = await fetch('http://localhost:5000/api/filaments');
+        if (!res.ok) throw new Error(`Échec récupération stock (${res.status})`);
+        const json = await res.json();
+        stockFilaments.value = Array.isArray(json) ? json : [];
+
+        // ⬇️ LOG du stock brut
+        console.log('Stock filaments raw:', stockFilaments.value);
+
+        // On force un tick pour que stockByFamily soit à jour
+        await nextTick();
+        // ⬇️ LOG de la computed stockByFamily
+        console.log('stockByFamily:', stockByFamily.value);
+
     } catch (e) {
-        console.error('Erreur stock filaments', e)
-        errorMsg.value = 'Impossible de charger le stock de filaments'
+        console.error('Erreur stock filaments', e);
+        errorMsg.value = 'Impossible de charger le stock de filaments';
     }
-}
+};
+
+const stockByFamily = computed(() => {
+    const fams = {}
+    stockFilaments.value.forEach(f => {
+        const norm = normalizeMaterial(f.filament_detailed_type) // ex. "pla matte white"
+        const family = norm.split(' ')[0]                        // → "pla"
+        if (!fams[family]) fams[family] = new Set()
+        fams[family].add(f.filament_detailed_type)
+    })
+    console.log(stockByFamily.value)
+
+    return Object.fromEntries(
+        Object.entries(fams).map(([fam, set]) => [fam, Array.from(set)])
+    )
+})
 
 onMounted(() => {
     loadStock()
@@ -264,6 +331,8 @@ const uploadFiles = async (event) => {
         if (res.ok) {
             colors.value = Array.isArray(result.colors) ? result.colors : []
             materials.value = Array.isArray(result.materials) ? result.materials : []
+            piecesCount.value = result.pieces_count || 0
+            uniqueMaterials.value = Array.from(new Set(materials.value))
             filaments.value = []
             rawFiles.value = []
             errorMsg.value = ''
@@ -284,6 +353,12 @@ const uploadFiles = async (event) => {
 
 // --- matching requis vs stock ---
 const matches = computed(() => {
+
+    console.log('--- Recalcul matches ---');
+    console.log('materials:', materials.value);
+    console.log('colors:', colors.value);
+    console.log('stockByFamily keys:', Object.keys(stockByFamily.value));
+
     const out = []
     if (DEBUG) {
         console.log('=== Matching debug ===')
@@ -301,10 +376,20 @@ const matches = computed(() => {
 
         if (!requiredMat) continue
 
-        const candidates = stockFilaments.value.filter(
-            (f) =>
-                f.filament_detailed_type && materialMatches(requiredMat, f.filament_detailed_type)
-        )
+        const familyKey = normalizeMaterial(requiredMat).split(' ')[0];
+        console.log(`Index ${i} – material="${requiredMat}", familyKey="${familyKey}"`);
+        console.log('Options trouvées:', stockByFamily.value[familyKey]);
+
+        const override = selectedAlternatives[i]
+        const candidates = stockFilaments.value.filter(f => {
+            const type = f.filament_detailed_type
+            if (!type) return false
+            if (override) {
+                return normalizeMaterial(type) === normalizeMaterial(override)
+            } else {
+                return materialMatches(requiredMat, type)
+            }
+        })
 
         let best = null
         let bestDist = Infinity
@@ -349,8 +434,6 @@ const matches = computed(() => {
 })
 </script>
 
-
-
 <style>
 .dropzone {
     border: 2px dashed var(--ion-color-medium);
@@ -376,79 +459,90 @@ const matches = computed(() => {
 }
 
 .header-row {
-  --background: transparent;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
+    --background: transparent;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
 }
 
 
 .col {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
 }
+
 .required-col {
-  flex: 2;
+    flex: 2;
 }
 
 .arrow-col {
-  flex: 0 0 40px;
-  justify-content: center;
+    flex: 0 0 40px;
+    justify-content: center;
 }
 
 .stock-col {
-  flex: 2;
+    flex: 2;
+}
+
+.stock-col ion-select {
+  --min-height: 0;
+  min-height: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  height: auto;
 }
 
 .distance-col {
-  flex: 0 0 80px;
-  justify-content: flex-end;
-  font-size: 0.75rem;
-  opacity: 0.85;
-  white-space: nowrap;
+    flex: 0 0 80px;
+    justify-content: flex-end;
+    font-size: 0.75rem;
+    opacity: 0.85;
+    white-space: nowrap;
 }
 
 .line {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
 }
 
 .material {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .swatch {
-  margin-left: auto; /* pousse la pastille à l’extrémité droite */
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid #ccc;
-  flex-shrink: 0;
+    margin-left: auto;
+    /* pousse la pastille à l’extrémité droite */
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    flex-shrink: 0;
 }
 
 ion-item.missing {
-  background: rgba(255, 255, 255, 0.08);
-  opacity: 0.6;
+    background: rgba(255, 255, 255, 0.08);
+    opacity: 0.6;
+    margin-bottom: 4px;
 }
 
 .material-block {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 
 .name {
-  line-height: 1.1;
+    line-height: 1.1;
 }
 
 .sub {
-  margin-top: 2px;
-  font-size: 1rem;
-  color: var(--ion-color-medium);
+    margin-top: 2px;
+    font-size: 1rem;
+    color: var(--ion-color-medium);
 }
 </style>

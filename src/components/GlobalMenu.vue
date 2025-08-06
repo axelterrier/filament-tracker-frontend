@@ -32,6 +32,13 @@
           </ion-menu-toggle>
 
           <ion-menu-toggle auto-hide="false">
+            <ion-item routerLink="/3mf-analyse" routerDirection="root" lines="none">
+              <ion-icon slot="start" :icon="documentAttachOutline"/>
+              <ion-label>3mf</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+
+          <ion-menu-toggle auto-hide="false">
             <ion-item routerLink="/login" routerDirection="root" lines="none">
               <ion-icon slot="start" :icon="logInOutline" color="danger"/>
               <ion-label>{{ t('menu.logout') }}</ion-label>
@@ -45,7 +52,7 @@
   
   <script setup lang="ts">
   import { useI18n } from 'vue-i18n';
-  import { homeOutline, logInOutline, settingsOutline, statsChartOutline } from 'ionicons/icons';
+  import { homeOutline, logInOutline, settingsOutline, statsChartOutline, documentAttachOutline } from 'ionicons/icons';
   import {
     IonMenu,
     IonHeader,
