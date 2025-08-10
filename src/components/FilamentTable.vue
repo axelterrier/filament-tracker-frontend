@@ -2,7 +2,7 @@
     <ion-grid>
         <ion-row>
             <!-- Colonne gauche : liste des filaments -->
-            <ion-col size-md="6" size-sm="12">
+            <ion-col size-md="6" size-sm="12"> 
                 <ion-card class="spaced-card">
                     <ion-card-header>
                         <ion-card-title>Mes filaments</ion-card-title>
@@ -26,7 +26,7 @@
                                     </h2>
                                     <p style="margin: 4px 0;">
                                         <strong>Ø :</strong> {{ filament.filament_diameter }} mm |
-                                        <strong>Poids :</strong> {{ filament.spool_weight }} g |
+                                        <strong>Poids :</strong> {{ filament.remaining_weight || filament.spool_weight }} g |
                                         <strong>Temp :</strong> {{ filament.print_temp_min }}–{{ filament.print_temp_max
                                         }} °C
                                     </p>
@@ -112,8 +112,6 @@ import {
     createOutline,
     trashOutline,
     chevronForward,
-    caretUpOutline,
-    caretDownOutline
 } from 'ionicons/icons';
 
 const filaments = ref([]);
@@ -172,10 +170,20 @@ const processedFilaments = computed(() => {
 
 const totalFilaments = computed(() => processedFilaments.value.length);
 
+const toNumber = (v) => {
+  const n = typeof v === 'string' ? parseFloat(v) : Number(v);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const realWeight = (f) => {
+  // Utilise remaining_grams si fourni (même 0), sinon spool_weight
+  return (f.remaining_weight !== null && f.remaining_weight !== undefined)
+    ? toNumber(f.remaining_weight)
+    : toNumber(f.spool_weight);
+};
+
 const totalWeight = computed(() =>
-    processedFilaments.value.reduce(
-        (sum, f) => sum + (parseFloat(f.spool_weight) || 0), 0
-    )
+  processedFilaments.value.reduce((sum, f) => sum + realWeight(f), 0)
 );
 
 const totalWeightKg = computed(() => (totalWeight.value / 1000).toFixed(2));
@@ -195,17 +203,16 @@ const chartData = computed(() => ({
     datasets: [
         {
             data: Object.values(distributionByMaterial.value),
-            // Optionnel : tu peux mettre tes propres couleurs
             backgroundColor: [
-                "#f39c12", // orange "mango"
-                "#27ae60", // vert foncé mais vif
-                "#8e44ad", // violet vif
-                "#3498db", // bleu "flat"
-                "#e74c3c", // rouge pétant
-                "#f1c40f", // jaune profond mais lisible
-                "#16a085", // turquoise
-                "#d35400", // orange foncé
-                "#bdc3c7", // gris clair (pour "autres" ou catégories faibles)
+                "#f39c12",
+                "#27ae60",
+                "#8e44ad",
+                "#3498db",
+                "#e74c3c",
+                "#f1c40f", 
+                "#16a085",
+                "#d35400",
+                "#bdc3c7",
             ],
             borderColor: "#222",       // change la couleur de la bordure
         }
@@ -263,7 +270,6 @@ async function deleteFilament(filament) {
 <style>
 .spaced-card {
     margin-bottom: 24px;
-    /* ou 16px, à adapter selon le look voulu */
 }
 
 .spaced-card:last-child {
