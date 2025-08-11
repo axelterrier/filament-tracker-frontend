@@ -51,7 +51,7 @@ import {
 } from '@ionic/vue';
 
 import { useI18n } from 'vue-i18n';
-import { setDarkTheme } from '@/main';
+import { setDarkTheme } from '@/theme';
 
 // Custom Components
 import FilamentTable from '@/components/FilamentTable.vue';

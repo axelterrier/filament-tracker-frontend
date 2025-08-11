@@ -115,7 +115,7 @@
         </ion-item>
         <ion-item>
           <ion-label position="stacked">{{ t('addFilament.dryTimeMinutes') }}</ion-label>
-          <ion-input v-model.number="filament.dry_time_minutes" type="number"
+          <ion-input v-model.number="filament.dry_time_hour" type="number"
             :placeholder="$t('addFilament.dryTimeMinutesPlaceholder')" />
         </ion-item>
         <ion-item>
@@ -183,7 +183,7 @@ const filament = ref({
   spool_weight: null,
   filament_length: null,
   dry_temp: null,
-  dry_time_minutes: null,
+  dry_time_hour: null,
   dry_bed_temp: null,
   nozzle_diameter: null,
   print_temp_min: null,

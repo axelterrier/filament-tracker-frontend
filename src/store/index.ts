@@ -1,23 +1,14 @@
 import { defineStore } from 'pinia';
+import { setDarkTheme } from '@/theme';
 
 export const useMainStore = defineStore('main', {
   state: () => ({
-    token: '' as string,
-    darkMode: false as boolean,
-    locale: 'fr' as string,
+    darkMode: (localStorage.getItem('dark') ?? 'false') === 'true',
   }),
   actions: {
-    setToken(t: string) {
-      this.token = t;
-    },
     setDarkMode(active: boolean) {
       this.darkMode = active;
-      document.body.classList.toggle('dark', active);
-      localStorage.setItem('darkMode', active ? '1' : '0');
+      setDarkTheme(active); // applique la classe + persiste
     },
-    setLocale(lang: string) {
-      this.locale = lang;
-      localStorage.setItem('locale', lang);
-    }
-  }
+  },
 });

@@ -46,7 +46,7 @@ import {
 import { useI18n } from 'vue-i18n';
 
 // Theme Utility
-import { setDarkTheme } from '@/main';
+import { setDarkTheme } from '@/theme';
 
 // i18n Composition API
 const { t } = useI18n();

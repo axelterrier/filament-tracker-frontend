@@ -10,192 +10,298 @@
     </ion-header>
 
     <ion-content fullscreen>
-      <ion-card v-if="filament">
-        <ion-card-header>
-          <ion-card-title class="ion-text-wrap ion-margin-bottom">
-            <strong>
-              {{ filament.filament_type || $t('filamentDetail.unknownType') }}
-              <span v-if="filament.filament_detailed_type">
-                – {{ filament.filament_detailed_type }}
-              </span>
-            </strong>
-          </ion-card-title>
-          <ion-card-subtitle>
-            {{ $t('filamentDetail.uid') }}: <code>{{ filament.uid }}</code>
-          </ion-card-subtitle>
-        </ion-card-header>
+      <!-- Loading state -->
+      <div v-if="!filament" class="container">
+        <ion-skeleton-text animated style="width: 60%; height: 28px; margin: 16px 0;"></ion-skeleton-text>
+        <ion-grid fixed>
+          <ion-row>
+            <ion-col size="12" size-md="6" v-for="i in 4" :key="i">
+              <ion-card class="card">
+                <ion-card-header>
+                  <ion-skeleton-text animated style="width: 40%; height: 20px;"></ion-skeleton-text>
+                </ion-card-header>
+                <ion-card-content>
+                  <ion-skeleton-text animated style="width: 100%; height: 16px; margin: 8px 0;"></ion-skeleton-text>
+                  <ion-skeleton-text animated style="width: 85%; height: 16px; margin: 8px 0;"></ion-skeleton-text>
+                  <ion-skeleton-text animated style="width: 70%; height: 16px; margin: 8px 0;"></ion-skeleton-text>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
 
-        <ion-card-content>
-          <!-- Section Général -->
-          <ion-list inset lines="none" class="ion-margin-bottom">
-            <ion-list-header>
-              <ion-label>{{ $t('filamentDetail.general') }}</ion-label>
-            </ion-list-header>
-            <ion-item>
-              <ion-label position="stacked">{{ $t('filamentDetail.colorLabel') }}</ion-label>
-              <div
-                slot="end"
-                class="color-preview"
-                :style="{ backgroundColor: filament.color_code }"
-              ></div>
-            </ion-item>
-            <ion-item>
-              <ion-label position="stacked">{{ $t('filamentDetail.manufactureDate') }}</ion-label>
-              <ion-note slot="end">
-                {{ filament.manufacture_datetime_utc || '—' }}
-              </ion-note>
-            </ion-item>
-            <ion-item>
-              <ion-label position="stacked">{{ $t('filamentDetail.addedAt') }}</ion-label>
-              <ion-note slot="end">
-                {{ filament.created_at ? new Date(filament.created_at).toLocaleString() : '—' }}
-              </ion-note>
-            </ion-item>
-          </ion-list>
+      <!-- Content -->
+      <div v-else class="container">
+        <!-- Hero -->
+        <ion-card class="hero">
+          <ion-card-content class="hero-content">
+            <div class="hero-left">
+              <div class="color-bubble" :style="{ backgroundColor: filament.color_code || '#e5e7eb' }"></div>
+              <div>
+                <div class="hero-title">
+                  <ion-badge mode="ios" color="primary" class="badge-type">
+                    {{ filament.filament_type || $t('filamentDetail.unknownType') }}
+                  </ion-badge>
+                  <span v-if="filament.filament_detailed_type" class="detail-type">
+                    – {{ filament.filament_detailed_type }}
+                  </span>
+                </div>
+                <div class="hero-sub">
+                  {{ $t('filamentDetail.uid') }}: <code>{{ filament.uid }}</code>
+                </div>
+                <div class="hero-meta">
+                  <ion-chip outline>
+                    <ion-icon :icon="icons.colorPalette" />
+                    <ion-label>{{ filament.color_code || '—' }}</ion-label>
+                  </ion-chip>
+                  <ion-chip outline v-if="filament.extra_color_info">
+                    <ion-icon :icon="icons.informationCircle" />
+                    <ion-label>{{ filament.extra_color_info }}</ion-label>
+                  </ion-chip>
+                  <ion-chip outline>
+                    <ion-icon :icon="icons.time" />
+                    <ion-label>
+                      {{ $t('filamentDetail.addedAt') }}:
+                      {{ filament.created_at ? prettyDate(filament.created_at) : '—' }}
+                    </ion-label>
+                  </ion-chip>
+                </div>
+              </div>
+            </div>
+            <div class="hero-right">
+              <div class="quick-stats">
+                <div class="stat">
+                  <div class="stat-label">{{ $t('filamentDetail.diameter') }}</div>
+                  <div class="stat-value">{{ formatValue(filament.filament_diameter, 'mm') }}</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">{{ $t('filamentDetail.spoolWeight') }}</div>
+                  <div class="stat-value">{{ formatValue(filament.spool_weight, 'g') }}</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">{{ $t('filamentDetail.remainingGrams') }}</div>
+                  <div class="stat-value emphasize">
+                    {{ formatValue(filament.remaining_grams ?? filament.spool_weight, 'g') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
 
-          <!-- Section Physique -->
-          <ion-list inset lines="none" class="ion-margin-bottom">
-            <ion-list-header>
-              <ion-label>{{ $t('filamentDetail.physical') }}</ion-label>
-            </ion-list-header>
-            <ion-item>
-              <ion-label position="stacked">{{ $t('filamentDetail.diameter') }}</ion-label>
-              <ion-note slot="end">
-                {{ filament.filament_diameter != null ? filament.filament_diameter + ' mm' : '—' }}
-              </ion-note>
-            </ion-item>
-            <ion-item>
-              <ion-label position="stacked">{{ $t('filamentDetail.spoolWeight') }}</ion-label>
-              <ion-note slot="end">
-                {{ filament.spool_weight != null ? filament.spool_weight + ' g' : '—' }}
-              </ion-note>
-            </ion-item>
-            <ion-item>
-              <ion-label position="stacked">{{ $t('filamentDetail.spoolWidth') }}</ion-label>
-              <ion-note slot="end">
-                {{ filament.spool_width != null ? filament.spool_width + ' mm' : '—' }}
-              </ion-note>
-            </ion-item>
-            <ion-item>
-              <ion-label position="stacked">{{ $t('filamentDetail.filamentLength') }}</ion-label>
-              <ion-note slot="end">
-                {{ filament.filament_length != null ? filament.filament_length + ' m' : '—' }}
-              </ion-note>
-            </ion-item>
-            <ion-item>
-              <ion-label position="stacked">{{ $t('filamentDetail.nozzleDiameter') }}</ion-label>
-              <ion-note slot="end">
-                {{ filament.nozzle_diameter != null ? filament.nozzle_diameter + ' mm' : '—' }}
-              </ion-note>
-            </ion-item>
-            <ion-item>
-              <ion-label position="stacked">{{ $t('filamentDetail.xcamInfo') }}</ion-label>
-              <ion-note slot="end">
-                {{ filament.xcam_info || '—' }}
-              </ion-note>
-            </ion-item>
-          </ion-list>
+        <!-- Grid cards -->
+        <!-- remplace ton <ion-grid fixed> ... </ion-grid> -->
+        <ion-grid class="wide-grid">
+          <ion-row class="cards-grid">
 
-          <!-- Section Températures -->
-          <ion-list inset lines="none" class="ion-margin-bottom">
-            <ion-list-header>
-              <ion-label>{{ $t('filamentDetail.temperatures') }}</ion-label>
-            </ion-list-header>
-            <ion-item>
-              <ion-label position="stacked">{{ $t('filamentDetail.printTemp') }}</ion-label>
-              <ion-note slot="end">
-                {{ filament.print_temp_min != null ? filament.print_temp_min + '°C' : '—' }}
-                &nbsp;–&nbsp;
-                {{ filament.print_temp_max != null ? filament.print_temp_max + '°C' : '—' }}
-              </ion-note>
-            </ion-item>
-            <ion-item>
-              <ion-label position="stacked">{{ $t('filamentDetail.dryInfo') }}</ion-label>
-              <ion-note slot="end">
-                {{ $t('filamentDetail.chamber') }}
-                {{ filament.dry_temp != null ? filament.dry_temp + '°C' : '—' }}
-                &nbsp;/&nbsp;
-                {{ filament.dry_time_minutes != null ? filament.dry_time_minutes + ' min' : '—' }}
-                &nbsp;/&nbsp;
-                {{ $t('filamentDetail.bed') }}:
-                {{ filament.dry_bed_temp != null ? filament.dry_bed_temp + '°C' : '—' }}
-              </ion-note>
-            </ion-item>
-          </ion-list>
+            <!-- Général (prend de la place pour le texte) -->
+            <ion-col size="12" size-lg="6">
+              <ion-card class="card card--spacious">
+                <ion-card-header>
+                  <div class="card-title">
+                    <ion-icon :icon="icons.informationCircle" />
+                    <span>{{ $t('filamentDetail.general') }}</span>
+                  </div>
+                </ion-card-header>
+                <ion-card-content>
+                  <div class="stack">
+                    <div class="stack-item">
+                      <div class="label">{{ $t('filamentDetail.manufactureDate') }}</div>
+                      <div class="value">{{ filament.manufacture_datetime_utc || '—' }}</div>
+                    </div>
+                    <div class="stack-item" v-if="filament.short_date">
+                      <div class="label">{{ $t('filamentDetail.shortDate') }}</div>
+                      <div class="value">{{ filament.short_date }}</div>
+                    </div>
+                    <div class="stack-item">
+                      <div class="label">{{ $t('filamentDetail.addedAt') }}</div>
+                      <div class="value">{{ filament.created_at ? prettyDate(filament.created_at) : '—' }}</div>
+                    </div>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
 
-          <!-- Section Métadonnées -->
-          <ion-list inset lines="none" class="ion-margin-bottom">
-            <ion-list-header>
-              <ion-label>{{ $t('filamentDetail.metadata') }}</ion-label>
-            </ion-list-header>
-            <ion-item>
-              <ion-label position="stacked">{{ $t('filamentDetail.trayUid') }}</ion-label>
-              <ion-note slot="end">
-                {{ filament.tray_uid || '—' }}
-              </ion-note>
-            </ion-item>
-            <ion-item>
-              <ion-label position="stacked">{{ $t('filamentDetail.tagManufacturer') }}</ion-label>
-              <ion-note slot="end">
-                {{ filament.tag_manufacturer || '—' }}
-              </ion-note>
-            </ion-item>
-          </ion-list>
+            <!-- Températures -->
+            <ion-col size="12" size-lg="6">
+              <ion-card class="card card--spacious">
+                <ion-card-header>
+                  <div class="card-title">
+                    <ion-icon :icon="icons.thermometer" />
+                    <span>{{ $t('filamentDetail.temperatures') }}</span>
+                  </div>
+                </ion-card-header>
+                <ion-card-content>
+                  <div class="stack">
+                    <div class="stack-item">
+                      <div class="label">{{ $t('filamentDetail.printTemp') }}</div>
+                      <div class="value">
+                        {{ formatValue(filament.print_temp_min, '°C') }} – {{ formatValue(filament.print_temp_max, '°C')
+                        }}
+                      </div>
+                    </div>
+                    <div class="stack-item">
+                      <div class="label">{{ $t('filamentDetail.dryInfo') }}</div>
+                      <div class="value">
+                        {{ $t('filamentDetail.chamber') }} {{ formatValue(filament.dry_temp, '°C') }}
+                        / {{ formatValue(filament.dry_time_hour, $t('filamentDetail.hourShort') || 'h') }}
+                        / {{ $t('filamentDetail.bed') }} {{ formatValue(filament.dry_bed_temp, '°C') }}
+                      </div>
+                    </div>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
 
-          <!-- Bouton flottant d’édition -->
-          <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-            <ion-fab-button
-              :router-link="['/filament', filament.uid, 'edit']"
-              router-direction="forward"
-            >
-              <ion-icon name="pencil-outline" />
-            </ion-fab-button>
-          </ion-fab>
-        </ion-card-content>
-      </ion-card>
+            <!-- Dimensions (côte à côte avec Général) -->
+            <ion-col size="12" size-lg="6">
+              <ion-card class="card card--spacious">
+                <ion-card-header>
+                  <div class="card-title">
+                    <ion-icon :icon="icons.analytics" />
+                    <span>{{ $t('filamentDetail.physical') }}</span>
+                  </div>
+                </ion-card-header>
+                <ion-card-content>
+                  <div class="grid-2 roomy">
+                    <div class="kv">
+                      <div class="k">{{ $t('filamentDetail.diameter') }}</div>
+                      <div class="v">{{ formatValue(filament.filament_diameter, 'mm') }}</div>
+                    </div>
+                    <div class="kv">
+                      <div class="k">{{ $t('filamentDetail.spoolWidth') }}</div>
+                      <div class="v">{{ formatValue(filament.spool_width, 'mm') }}</div>
+                    </div>
+                    <div class="kv">
+                      <div class="k">{{ $t('filamentDetail.filamentLength') }}</div>
+                      <div class="v">{{ formatValue(filament.filament_length, 'm') }}</div>
+                    </div>
+                    <div class="kv">
+                      <div class="k">{{ $t('filamentDetail.nozzleDiameter') }}</div>
+                      <div class="v">{{ formatValue(filament.nozzle_diameter, 'mm') }}</div>
+                    </div>
+                    <div class="kv" v-if="filament.xcam_info">
+                      <div class="k">{{ $t('filamentDetail.xcamInfo') }}</div>
+                      <div class="v monospace">{{ filament.xcam_info }}</div>
+                    </div>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
 
-      <ion-card v-else>
-        <ion-card-content class="ion-padding">
-          {{ $t('filamentDetail.loading') }}
-        </ion-card-content>
-      </ion-card>
+
+
+            <!-- AMS Sync -->
+            <ion-col size="12" size-lg="6">
+              <ion-card class="card card--spacious">
+                <ion-card-header>
+                  <div class="card-title">
+                    <ion-icon :icon="icons.hardwareChip" />
+                    <span>{{ $t('filamentDetail.amsSync') }}</span>
+                  </div>
+                </ion-card-header>
+                <ion-card-content>
+                  <div class="grid-2 roomy">
+                    <div class="kv">
+                      <div class="k">{{ $t('filamentDetail.remainingPercent') }}</div>
+                      <div class="v">{{ formatValue(filament.remaining_percent, '%') }}</div>
+                    </div>
+                    <div class="kv">
+                      <div class="k">{{ $t('filamentDetail.remainingGrams') }}</div>
+                      <div class="v emphasize">{{ formatValue(filament.remaining_grams, 'g') }}</div>
+                    </div>
+                    <div class="kv">
+                      <div class="k">{{ $t('filamentDetail.remainingLength') }}</div>
+                      <div class="v">{{ formatValue(filament.remaining_length_mm, 'mm') }}</div>
+                    </div>
+                    <div class="kv" v-if="filament.last_sync_source">
+                      <div class="k">{{ $t('filamentDetail.lastSyncSource') }}</div>
+                      <div class="v">{{ filament.last_sync_source }}</div>
+                    </div>
+                    <div class="kv" v-if="filament.last_sync_at">
+                      <div class="k">{{ $t('filamentDetail.lastSyncAt') }}</div>
+                      <div class="v">{{ prettyDate(filament.last_sync_at) }}</div>
+                    </div>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+
+            <!-- Métadonnées (pleine largeur) -->
+            <ion-col size="12">
+              <ion-card class="card card--spacious">
+                <ion-card-header>
+                  <div class="card-title">
+                    <ion-icon :icon="icons.informationCircle" />
+                    <span>{{ $t('filamentDetail.metadata') }}</span>
+                  </div>
+                </ion-card-header>
+                <ion-card-content>
+                  <div class="grid-3 roomy">
+                    <div class="kv">
+                      <div class="k">{{ $t('filamentDetail.trayUid') }}</div>
+                      <div class="v monospace">{{ filament.tray_uid || '—' }}</div>
+                    </div>
+                    <div class="kv">
+                      <div class="k">{{ $t('filamentDetail.tagManufacturer') }}</div>
+                      <div class="v">{{ filament.tag_manufacturer || '—' }}</div>
+                    </div>
+                    <div class="kv">
+                      <div class="k">{{ $t('filamentDetail.uid') }}</div>
+                      <div class="v monospace">{{ filament.uid }}</div>
+                    </div>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+
+          </ion-row>
+        </ion-grid>
+
+
+
+      </div>
     </ion-content>
   </ion-page>
 </template>
 
 <script setup>
-// Core Imports
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-
-// Ionic Components
 import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonButtons,
-  IonBackButton,
-  IonTitle,
-  IonContent,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardSubtitle,
-  IonCardContent,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonNote,
-  IonFab,
-  IonFabButton,
-  IonIcon
+  IonPage, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle,
+  IonContent, IonCard, IonCardHeader, IonCardContent,
+  IonGrid, IonRow, IonCol,
+  IonBadge, IonChip, IonIcon, IonLabel, IonSkeletonText
 } from '@ionic/vue';
 
-// Router & State
+import {
+  colorPalette, informationCircle, time, analytics, hardwareChip, thermometer
+} from 'ionicons/icons';
+
+const icons = { colorPalette, informationCircle, time, analytics, hardwareChip, thermometer };
+
 const route = useRoute();
 const filament = ref(null);
 
-// Fetch data
+const formatValue = (value, unit) => {
+  if (value === null || value === undefined || value === '') return '—';
+  // Affichage propre des nombres (évite 1.000000)
+  const n = Number(value);
+  const out = Number.isFinite(n) ? (Math.round(n * 100) / 100).toString() : String(value);
+  return unit ? `${out} ${unit}` : out;
+};
+
+const prettyDate = (d) => {
+  try {
+    const date = new Date(d);
+    return date.toLocaleString();
+  } catch {
+    return d || '—';
+  }
+};
+
 onMounted(async () => {
   const id = route.params.id;
   try {
@@ -209,47 +315,296 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Texte plus grand et aéré */
-ion-card-content {
-  font-size: 1.3em;
-  line-height: 1.5em;
+/* Layout */
+.container {
+  padding: 12px 12px 28px;
 }
 
-/* Alignement en haut, hauteur auto */
-ion-item {
-  --min-height: auto;
-  --padding-start: 18px;
-  --padding-end: 18px;
-  --padding-top: 12px;
-  --padding-bottom: 12px;
-  align-items: flex-start;
+.hero {
+  --background: linear-gradient(135deg, var(--ion-color-step-50), var(--ion-color-step-150));
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
-/* Liste inset décalée */
-ion-list[inset] {
-  --inset-start: 16px;
-  --inset-end: 16px;
+.hero-content {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px;
 }
 
-/* Labels et notes adaptés */
-ion-label[position="stacked"], ion-note {
-  white-space: normal;
+.hero-left {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  min-width: 0;
 }
 
-/* Couleur */
-.color-preview {
-  width: 40px;
-  height: 40px;
+.color-bubble {
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
-  border: 2px solid #ccc;
-  margin-right: 12px;
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+  flex: 0 0 auto;
 }
 
-/* Bouton plus grand */
-ion-fab-button {
-  --size: 60px;
+.hero-title {
+  font-weight: 700;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
-ion-fab-button ion-icon {
-  font-size: 1.6em;
+
+.badge-type {
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+.detail-type {
+  opacity: .9;
+}
+
+.hero-sub {
+  margin-top: 4px;
+  opacity: .85;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  word-break: break-all;
+}
+
+.hero-meta {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hero-right {
+  display: flex;
+  align-items: center;
+}
+
+.quick-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+.stat {
+  background: var(--ion-color-step-100);
+  padding: 12px;
+  border-radius: 14px;
+  min-width: 120px;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: .75rem;
+  opacity: .7;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.stat-value.emphasize {
+  font-size: 1.2rem;
+}
+
+/* Cards */
+.card {
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+  overflow: hidden;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 12px 16px 0;
+}
+
+.cards-grid {
+  row-gap: 16px;
+}
+
+ion-card-content {
+  padding-top: 8px;
+}
+
+/* Items */
+.item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 2px;
+  border-bottom: 1px dashed var(--ion-color-step-150);
+}
+
+.item:last-child {
+  border-bottom: 0;
+}
+
+.label {
+  font-size: .9rem;
+  opacity: .8;
+}
+
+.value {
+  font-weight: 600;
+  text-align: right;
+}
+
+.value.monospace {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  word-break: break-all;
+}
+
+/* Grids inside cards */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.compact .item {
+  padding: 4px 2px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--ion-color-step-150);
+  opacity: .7;
+  margin: 10px 0 4px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .quick-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .quick-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Ionic tweaks */
+ion-chip[outline] {
+  --background: transparent;
+  --color: var(--ion-text-color);
+  border: 1px solid var(--ion-color-step-200);
+  border-radius: 999px;
+}
+
+/* Plus large et plus aéré */
+.wide-grid {
+  max-width: 1400px;
+  /* avant ~1100-1200 */
+  margin: 0 auto;
+}
+
+.card--spacious {
+  --padding-start: 22px;
+  --padding-end: 22px;
+}
+
+.card--spacious ion-card-content {
+  padding: 18px 22px 22px;
+}
+
+.cards-grid {
+  row-gap: 20px;
+}
+
+/* Paires clé/valeur plus lisibles */
+.grid-2.roomy,
+.grid-3.roomy {
+  gap: 18px 22px;
+}
+
+.kv {
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--ion-color-step-200);
+}
+
+.kv:last-child {
+  border-bottom: 0;
+}
+
+.k {
+  font-size: .92rem;
+  opacity: .8;
+  margin-bottom: 4px;
+}
+
+.v {
+  font-weight: 600;
+  font-size: 1.02rem;
+}
+
+.v.emphasize {
+  font-size: 1.14rem;
+}
+
+/* Bloc “stack” : libellé au-dessus, parfait pour du texte long */
+.stack {
+  display: grid;
+  gap: 14px;
+}
+
+.stack-item .label {
+  font-size: .95rem;
+  opacity: .8;
+  margin-bottom: 4px;
+}
+
+.stack-item .value {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+/* Métadonnées */
+.monospace {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  word-break: break-all;
+}
+
+/* Petites retouches responsives */
+@media (max-width: 992px) {
+  .wide-grid {
+    padding: 0 10px;
+  }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-header>
+    <ion-header translucent>
       <ion-toolbar>
         <ion-buttons slot="start">
           <ion-menu-button />
@@ -9,133 +9,183 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content class="ion-padding">
-      <!-- Bloc configuration MQTT -->
-      <ion-list>
-        <ion-item>
-          <ion-label position="stacked">IP (broker)</ion-label>
-          <ion-input
-            type="text"
-            inputmode="decimal"
-            placeholder="192.168.1.46"
-            v-model:modelValue="form.ip"
-          />
-        </ion-item>
+    <ion-content fullscreen class="ion-padding simple-bg">
+      <ion-grid fixed>
+        <ion-row class="gap-row">
+          <!-- ===== Colonne gauche : Carte Connexion ===== -->
+          <ion-col size="12" size-md="7">
+            <ion-card class="card clean-card">
+              <ion-card-header>
+                <ion-card-title class="title-row">
+                  <ion-icon :icon="serverOutline" />
+                  <span>{{ t('settings.mqttTitle') || 'Connexion MQTT / Bambu' }}</span>
+                </ion-card-title>
+                <ion-card-subtitle>
+                  {{ t('settings.mqttSubtitle') || 'Renseigne IP, serial et code LAN' }}
+                </ion-card-subtitle>
+              </ion-card-header>
 
-        <ion-item>
-          <ion-label position="stacked">Serial</ion-label>
-          <ion-input
-            type="text"
-            placeholder="01P00A..."
-            v-model:modelValue="form.serial"
-          />
-        </ion-item>
+              <ion-card-content>
+                <ion-grid class="inner-grid">
+                  <ion-row class="gap-row">
+                    <ion-col size="12">
+                      <ion-item lines="inset">
+                        <ion-label position="stacked">IP (broker)</ion-label>
+                        <ion-input placeholder="192.168.1.46" v-model="form.ip" @ionBlur="touched.ip = true"
+                          :class="{ invalid: touched.ip && !validIp }" />
+                      </ion-item>
+                    </ion-col>
 
-        <ion-item>
-          <ion-label position="stacked">LAN code</ion-label>
-          <ion-input
-            type="password"
-            v-model:modelValue="form.password"
-          />
-        </ion-item>
+                    <ion-col size="12" size-md="6">
+                      <ion-item lines="inset">
+                        <ion-label position="stacked">Serial</ion-label>
+                        <ion-input placeholder="01P00A..." v-model="form.serial" @ionBlur="touched.serial = true"
+                          :class="{ invalid: touched.serial && !validSerial }" />
+                      </ion-item>
+                    </ion-col>
 
-        <ion-item>
-          <ion-label>Utiliser TLS</ion-label>
-          <ion-toggle v-model:checked="form.useTLS" />
-        </ion-item>
+                    <ion-col size="12" size-md="6">
+                      <ion-item lines="inset">
+                        <ion-label position="stacked">LAN code</ion-label>
+                        <ion-input placeholder="6960..." type="password" v-model="form.password" @ionBlur="touched.password = true"
+                          :class="{ invalid: touched.password && !validPassword }" />
+                      </ion-item>
+                    </ion-col>
 
-        <ion-item>
-          <ion-label position="stacked">Port TLS</ion-label>
-          <ion-input
-            type="number"
-            inputmode="numeric"
-            v-model:modelValue="form.portTLS"
-          />
-        </ion-item>
+                    <ion-col size="12" size-md="6">
+                      <ion-item lines="none">
+                        <ion-label>Utiliser TLS</ion-label>
+                        <ion-toggle slot="end" v-model:checked="form.useTLS" />
+                      </ion-item>
+                    </ion-col>
 
-        <ion-item>
-          <ion-label position="stacked">Port (sans TLS)</ion-label>
-          <ion-input
-            type="number"
-            inputmode="numeric"
-            v-model:modelValue="form.portPlain"
-          />
-        </ion-item>
+                    <ion-col size="12" size-md="6" v-if="form.useTLS">
+                      <ion-item lines="inset">
+                        <ion-label position="stacked">Port TLS</ion-label>
+                        <ion-input type="number" v-model.number="form.portTLS" />
+                      </ion-item>
+                    </ion-col>
+                    <ion-col size="12" size-md="6" v-else>
+                      <ion-item lines="inset">
+                        <ion-label position="stacked">Port (sans TLS)</ion-label>
+                        <ion-input type="number" v-model.number="form.portPlain" />
+                      </ion-item>
+                    </ion-col>
 
-        <ion-button expand="block" :disabled="loading" @click="testConnection">
-          Tester la connexion
-        </ion-button>
-        <ion-button expand="block" color="primary" :disabled="loading" @click="saveConfig">
-          Enregistrer
-        </ion-button>
+                    <ion-col size="12">
+                      <div class="inline-actions">
+                        <ion-button @click="testConnection">
+                          <ion-icon slot="start" :icon="flashOutline" />
+                          {{ t('settings.testButton') || 'Tester la connexion' }}
+                        </ion-button>
 
-        <ion-text color="success" v-if="testResult">
-          <p class="ion-padding-top">Test OK : {{ (testResult as any).details }}</p>
-        </ion-text>
-        <ion-text color="danger" v-if="errorMsg">
-          <p class="ion-padding-top">{{ errorMsg }}</p>
-        </ion-text>
-      </ion-list>
+                        <ion-button color="primary" @click="saveConfig">
+                          <ion-icon slot="start" :icon="saveOutline" />
+                          {{ t('settings.save') || 'Enregistrer' }}
+                        </ion-button>
 
-      <!-- Préférences UI -->
-      <ion-list>
-        <ion-item class="form-item">
-          <ion-label>{{ t('settings.theme') }}</ion-label>
-          <ion-toggle slot="end" v-model:checked="dark" />
-        </ion-item>
+                        <ion-badge v-if="testResult" color="success">OK</ion-badge>
+                        <ion-badge v-else-if="errorMsg" color="danger">Erreur</ion-badge>
+                      </div>
 
-        <ion-item class="form-item">
-          <ion-label>{{ t('settings.language') }}</ion-label>
-          <ion-select slot="end" v-model="selectedLanguage" ok-text="OK" :cancel-text="t('settings.cancel')">
-            <ion-select-option v-for="lang in languages" :key="lang.value" :value="lang.value">
-              {{ lang.text }}
-            </ion-select-option>
-          </ion-select>
-        </ion-item>
+                      <ion-text color="success" v-if="testResult">
+                        <p class="hint">{{ (testResult as any).details }}</p>
+                      </ion-text>
+                      <ion-text color="danger" v-if="errorMsg">
+                        <p class="hint">{{ errorMsg }}</p>
+                      </ion-text>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
 
-        <ion-item class="form-item">
-          <ion-label>{{ t('settings.units') }}</ion-label>
-          <ion-select slot="end" v-model="selectedUnit" ok-text="OK" :cancel-text="t('settings.cancel')">
-            <ion-select-option v-for="unit in units" :key="unit.value" :value="unit.value">
-              {{ unit.text }}
-            </ion-select-option>
-          </ion-select>
-        </ion-item>
-      </ion-list>
+          <!-- ===== Colonne droite : Grid de mini-cartes Préférences ===== -->
+          <ion-col size="12" size-md="5">
+            <div class="tile-grid">
+              <!-- Thème -->
+              <ion-card class="card tile">
+                <ion-card-header>
+                  <ion-card-title class="tile-title">
+                    <ion-icon :icon="moonOutline" />
+                    <span>{{ t('settings.theme') }}</span>
+                  </ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  <div class="tile-control">
+                    <ion-label>Thème sombre</ion-label>
+                    <ion-toggle :checked="darkMode" @ionChange="onToggle" />
+                  </div>
+                </ion-card-content>
+              </ion-card>
+
+              <!-- Langue -->
+              <ion-card class="card tile">
+                <ion-card-header>
+                  <ion-card-title class="tile-title">
+                    <ion-icon :icon="languageOutline" />
+                    <span>{{ t('settings.language') }}</span>
+                  </ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  <ion-select interface="popover" v-model="selectedLanguage" ok-text="OK"
+                    :cancel-text="t('settings.cancel')">
+                    <ion-select-option v-for="lang in languages" :key="lang.value" :value="lang.value">
+                      {{ lang.text }}
+                    </ion-select-option>
+                  </ion-select>
+                </ion-card-content>
+              </ion-card>
+
+              <!-- Unités -->
+              <ion-card class="card tile">
+                <ion-card-header>
+                  <ion-card-title class="tile-title">
+                    <ion-icon :icon="speedometerOutline" />
+                    <span>{{ t('settings.units') }}</span>
+                  </ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  <ion-select interface="popover" v-model="selectedUnit" ok-text="OK"
+                    :cancel-text="t('settings.cancel')">
+                    <ion-select-option v-for="unit in units" :key="unit.value" :value="unit.value">
+                      {{ unit.text }}
+                    </ion-select-option>
+                  </ion-select>
+                </ion-card-content>
+              </ion-card>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref, watch, computed } from 'vue'
 import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonButtons,
-  IonMenuButton,
-  IonTitle,
-  IonContent,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonToggle,
-  IonSelect,
-  IonSelectOption,
-  IonInput,
-  IonButton,
-  IonText,
+  IonPage, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle,
+  IonContent, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, IonCardTitle,
+  IonCardSubtitle, IonCardContent, IonItem, IonLabel, IonInput, IonToggle,
+  IonSelect, IonSelectOption, IonButton, IonIcon, IonBadge, IonText
 } from '@ionic/vue'
+import { storeToRefs } from 'pinia';
+import { useMainStore } from "@/store";
 import { useI18n } from 'vue-i18n'
-import { setDarkTheme } from '@/main'
+import {
+  serverOutline, flashOutline, saveOutline, moonOutline,
+  languageOutline, speedometerOutline
+} from 'ionicons/icons'
 
 interface Language { value: string; text: string }
 interface Unit { value: string; text: string }
 
-const API_BASE = 'http://localhost:5000'
+const store = useMainStore();
+const { darkMode } = storeToRefs(store);
 
-// ---- État réactif ----
-const dark = ref(localStorage.getItem('dark') === 'true')
+const API_BASE = 'http://localhost:5000'
 
 const form = reactive({
   ip: '',
@@ -145,81 +195,163 @@ const form = reactive({
   portTLS: 8883 as number,
   portPlain: 1883 as number,
 })
-
+const touched = reactive({ ip: false, serial: false, password: false })
 const loading = ref(false)
 const testResult = ref<Record<string, unknown> | null>(null)
 const errorMsg = ref('')
 
-// ---- i18n ----
 const { t, locale } = useI18n()
 const selectedLanguage = ref<string>(localStorage.getItem('locale') || locale.value)
-
 const languages: Language[] = [
   { value: 'fr', text: t('settings.languages.fr') },
   { value: 'en', text: t('settings.languages.en') },
 ]
-
 const selectedUnit = ref<string>(localStorage.getItem('unit') || 'metric')
-
 const units: Unit[] = [
   { value: 'metric', text: t('settings.metric') },
   { value: 'imperial', text: t('settings.imperial') },
 ]
 
-// ---- Watchers ----
-watch(dark, (isDark) => setDarkTheme(isDark))
-watch(selectedLanguage, (lang) => {
-  locale.value = lang
-  localStorage.setItem('locale', lang)
+const validIp = computed(() => {
+  if (form.ip.trim().toLowerCase() === 'localhost') return true
+  const m = form.ip.match(/^(\d{1,3}\.){3}\d{1,3}$/)
+  return !!m && form.ip.split('.').every(p => +p >= 0 && +p <= 255)
 })
-watch(selectedUnit, (unit) => {
-  localStorage.setItem('unit', unit)
-})
+const validSerial = computed(() => form.serial.trim().length >= 6)
+const validPassword = computed(() => form.password.trim().length > 0)
 
-// ---- Actions réseau ----
+const canSave = computed(() => validIp.value && validSerial.value && validPassword.value)
+const canTest = canSave
+
+function onToggle(ev: CustomEvent) {
+  store.setDarkMode((ev as any).detail?.checked === true);
+}
+
+watch(selectedLanguage, (lang) => { locale.value = lang; localStorage.setItem('locale', lang) })
+watch(selectedUnit, (unit) => { localStorage.setItem('unit', unit) })
+
 async function testConnection() {
-  loading.value = true
-  errorMsg.value = ''
-  testResult.value = null
+  loading.value = true; errorMsg.value = ''; testResult.value = null
   try {
     const res = await fetch(`${API_BASE}/api/mqtt/test`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form)
     })
     const data = await res.json()
-    if (!res.ok) throw new Error((data && data.error) || 'Test échoué')
+    if (!res.ok) throw new Error(data?.error || 'Test échoué')
     testResult.value = data
-  } catch (e: unknown) {
-    errorMsg.value = e instanceof Error ? e.message : 'Erreur inconnue'
-  } finally {
-    loading.value = false
-  }
+  } catch (e: any) {
+    errorMsg.value = e?.message || 'Erreur inconnue'
+  } finally { loading.value = false }
 }
 
 async function saveConfig() {
-  loading.value = true
-  errorMsg.value = ''
+  loading.value = true; errorMsg.value = ''
   try {
     const res = await fetch(`${API_BASE}/api/mqtt/config`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form)
     })
     const data = await res.json()
-    if (!res.ok) throw new Error((data && data.error) || 'Sauvegarde échouée')
+    if (!res.ok) throw new Error(data?.error || 'Sauvegarde échouée')
     localStorage.setItem('mqtt_config', JSON.stringify(form))
-    alert('Configuration enregistrée et client MQTT démarré ✅')
-  } catch (e: unknown) {
-    errorMsg.value = e instanceof Error ? e.message : 'Erreur inconnue'
-  } finally {
-    loading.value = false
-  }
+    const toast = document.createElement('ion-toast')
+    toast.message = 'Configuration enregistrée ✅'
+    toast.duration = 1600
+    document.body.appendChild(toast)
+    toast.present()
+  } catch (e: any) {
+    errorMsg.value = e?.message || 'Erreur inconnue'
+  } finally { loading.value = false }
 }
 </script>
 
 <style scoped>
-.form-item {
-  margin-bottom: 1.5rem;
+/* === Layout === */
+.simple-bg {
+  background: var(--ion-background-color);
+}
+
+.gap-row {
+  row-gap: 16px;
+}
+
+/* === Cards === */
+.card.clean-card,
+.card.tile {
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(120, 120, 120, 0.15);
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.title-row ion-icon {
+  font-size: 20px;
+  opacity: .85;
+}
+
+/* grid interne de la carte connexion */
+.inner-grid {
+  --ion-grid-column-padding: 0;
+}
+
+/* mini-cartes en grid */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .tile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tile-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.tile-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* === Items & Inputs === */
+ion-item {
+  --inner-padding-end: 0;
+}
+
+/* === Inline actions & footer === */
+.inline-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.hint {
+  margin-top: 6px;
+}
+
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  margin-top: 24px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 12px;
+  border-top: 1px solid rgba(120, 120, 120, 0.15);
+  background: color-mix(in oklab, var(--ion-background-color) 85%, transparent);
+  backdrop-filter: blur(2px);
 }
 </style>
