@@ -47,7 +47,7 @@
                     <ion-col size="12" size-md="6">
                       <ion-item lines="inset">
                         <ion-label position="stacked">LAN code</ion-label>
-                        <ion-input placeholder="6960..." type="password" v-model="form.password" @ionBlur="touched.password = true"
+                        <ion-input placeholder="6960..." type="numeric" v-model="form.password" @ionBlur="touched.password = true"
                           :class="{ invalid: touched.password && !validPassword }" />
                       </ion-item>
                     </ion-col>

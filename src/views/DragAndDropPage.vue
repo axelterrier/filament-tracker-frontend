@@ -161,6 +161,7 @@ const uploadFiles = async () => {
 
 
 <style scoped>
+
 .dropzone {
   border: 2px dashed var(--ion-color-medium);
   padding: 2rem;

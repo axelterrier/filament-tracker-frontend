@@ -9,27 +9,8 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content fullscreen>
+    <ion-content >
       <FilamentTable />
-      <!-- MODIFIER CE BOUTON POUR AVOIR UNE POP UP D'AJOUT MANUEL OU VIA LE CAPTEUR RFID -->
-      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-        <!-- Bouton principal -->
-        <ion-fab-button>
-          <ion-icon :icon="addOutline" />
-        </ion-fab-button>
-
-        <!-- Liste de sous‑boutons qui “pop” au-dessus -->
-        <ion-fab-list side="top">
-          <!-- Bouton “main” -->
-          <ion-fab-button @click="$router.push('/manual')">
-            <ion-icon :icon="handLeftOutline" />
-          </ion-fab-button>
-          <!-- Bouton “JSON” -->
-          <ion-fab-button @click="$router.push('/drag-and-drop')">
-            <ion-icon :icon="codeOutline" />
-          </ion-fab-button>
-        </ion-fab-list>
-      </ion-fab>
     </ion-content>
   </ion-page>
 </template>
@@ -72,4 +53,5 @@ watch(dark, (isDark) => setDarkTheme(isDark));
 #container {
   padding: 16px;
 }
+
 </style>

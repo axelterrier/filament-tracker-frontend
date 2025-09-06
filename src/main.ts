@@ -21,11 +21,10 @@ import '@ionic/vue/css/text-transformation.css';
 import '@ionic/vue/css/flex-utils.css';
 import '@ionic/vue/css/display.css';
 import '@ionic/vue/css/palettes/dark.class.css';
-
+import VueApexCharts from 'vue3-apexcharts'
 /* Variables + thème */
 import './theme/variables.css';
 import { setDarkTheme } from './theme';
-
 // Init dark mode
 const saved = localStorage.getItem('dark');
 const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
@@ -44,6 +43,7 @@ const app = createApp(App)
   .use(IonicVue)
   .use(createPinia())
   .use(i18n)
+  .use(VueApexCharts)
   .use(router);
 
 router.isReady().then(() => app.mount('#app'));

@@ -37,7 +37,11 @@
     "units": "Unité de mesure",
     "metric": "Métrique",
     "imperial": "Impérial",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "mqttTitle": "Paramètres MQTT",
+    "mqttSubtitle": "Connexion MQTT",
+    "testButton": "Test de la connexion",
+    "save": "Enregister la connexion"
   },
   "addFilament": {
     "title": "Ajout manuel",

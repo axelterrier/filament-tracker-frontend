@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
-import HomePage from '../views/HomePage.vue'
+import FilamentsPage from '../views/FilamentsPage.vue'
 import LoginPage from '@/views/LoginPage.vue'
 import SettingsPage from '@/views/SettingsPage.vue'
 import StatisticPage from '@/views/StatisticPage.vue'
@@ -13,7 +13,7 @@ import AnalyseProjectPage from '@/views/AnalyseProjectPage.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/login'
+    redirect: '/filaments'
   },
   {
     path: '/login',
@@ -21,9 +21,9 @@ const routes: Array<RouteRecordRaw> = [
     component: LoginPage
   },
   {
-    path: '/home',
-    name: 'Home',
-    component: HomePage
+    path: '/filaments',
+    name: 'filaments',
+    component: FilamentsPage
   },
   {
   path: '/settings',
