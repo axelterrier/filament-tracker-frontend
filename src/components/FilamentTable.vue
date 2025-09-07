@@ -37,7 +37,7 @@
                                             :indeterminate="isIndeterminateOnPage" @ionChange="toggleSelectAllOnPage" />
                                     </ion-col>
 
-                                    <ion-col size="1" @click="toggleSort('filament_detailed_type')" class="sortable">
+                                    <ion-col size="2" @click="toggleSort('filament_detailed_type')" class="sortable">
                                         Filament
                                         <ion-icon :icon="sortIcon('filament_detailed_type')" />
                                     </ion-col>
@@ -47,8 +47,8 @@
                                         <ion-icon :icon="sortIcon('filament_type')" />
                                     </ion-col>
 
-                                    <ion-col size="1" @click="toggleSort('filament_diameter')" class="sortable">
-                                        Ø (mm)
+                                    <ion-col size="2" @click="toggleSort('filament_diameter')" class="sortable">
+                                        Couleur
                                         <ion-icon :icon="sortIcon('filament_diameter')" />
                                     </ion-col>
 
@@ -62,7 +62,7 @@
                                         <ion-icon :icon="sortIcon('remaining_or_spool')" />
                                     </ion-col>
 
-                                    <ion-col size="2" @click="toggleSort('print_temp_min')" class="sortable">
+                                    <ion-col size="1" @click="toggleSort('print_temp_min')" class="sortable">
                                         Température
                                         <ion-icon :icon="sortIcon('print_temp_min')" />
                                     </ion-col>
@@ -82,7 +82,7 @@
                                             @ionChange="toggleSelect(filament.id)" />
                                     </ion-col>
 
-                                    <ion-col size="1">
+                                    <ion-col size="2">
                                         <div class="color-dot" :style="{ backgroundColor: filament.color_code }"></div>
                                         {{ filament.filament_detailed_type || filament.filament_type }}
                                     </ion-col>
@@ -90,13 +90,13 @@
                                     <!-- FIX: size 1 (comme header) -->
                                     <ion-col size="1">{{ filament.filament_type }}</ion-col>
 
-                                    <ion-col size="1">{{ filament.filament_diameter }}</ion-col>
+                                    <ion-col size="2">{{ filament.color_name || '-' }}</ion-col>
 
                                     <ion-col size="1"><span class="mono">{{ filament.color_code }}</span></ion-col>
 
                                     <ion-col size="1">{{ realWeight(filament) }} g</ion-col>
 
-                                    <ion-col size="2">
+                                    <ion-col size="1">
                                         {{ filament.print_temp_min }}–{{ filament.print_temp_max }} °C
                                     </ion-col>
 
