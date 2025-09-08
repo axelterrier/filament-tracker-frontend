@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import FilamentsPage from '../views/FilamentsPage.vue'
-import LoginPage from '@/views/LoginPage.vue'
 import SettingsPage from '@/views/SettingsPage.vue'
 import StatisticPage from '@/views/StatisticPage.vue'
 import AddManual from '@/views/AddManualPage.vue'
@@ -15,11 +14,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     redirect: '/filaments'
   },
-  {
-    path: '/login',
-    name: 'Login',
-    component: LoginPage
-  },
+
   {
     path: '/filaments',
     name: 'filaments',
