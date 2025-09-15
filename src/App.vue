@@ -18,35 +18,35 @@
           <ion-menu content-id="main-content" type="reveal" :content-width="200">
             <ion-content>
               <ion-list lines="none">
-                <ion-menu-toggle auto-hide="false">
+                <ion-menu-toggle auto-hide=:false>
                   <ion-item routerLink="/filaments" routerDirection="root">
                     <ion-icon slot="start" :icon="cubeOutline" />
                     <ion-label>Filaments</ion-label>
                   </ion-item>
                 </ion-menu-toggle>
 
-                <ion-menu-toggle auto-hide="false">
+                <ion-menu-toggle auto-hide=:false>
                   <ion-item routerLink="/statistic" routerDirection="root">
                     <ion-icon slot="start" :icon="statsChartOutline" />
                     <ion-label>Statistiques</ion-label>
                   </ion-item>
                 </ion-menu-toggle>
 
-                <ion-menu-toggle auto-hide="false">
+                <ion-menu-toggle auto-hide=:false>
                   <ion-item routerLink="/settings" routerDirection="root">
                     <ion-icon slot="start" :icon="settingsOutline" />
                     <ion-label>Paramètres</ion-label>
                   </ion-item>
                 </ion-menu-toggle>
 
-                <ion-menu-toggle auto-hide="false">
+                <ion-menu-toggle auto-hide=:false>
                   <ion-item routerLink="/3mf-analyse" routerDirection="root">
                     <ion-icon slot="start" :icon="documentAttachOutline" />
                     <ion-label>3MF</ion-label>
                   </ion-item>
                 </ion-menu-toggle>
 
-                <ion-menu-toggle auto-hide="false">
+                <ion-menu-toggle auto-hide=:false>
                   <ion-item routerLink="/login" routerDirection="root">
                     <ion-icon slot="start" :icon="logInOutline" color="danger" />
                     <ion-label>Déconnexion</ion-label>
