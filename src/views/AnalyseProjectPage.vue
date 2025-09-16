@@ -5,15 +5,12 @@
                 <ion-title>Analyse Projet 3MF</ion-title>
             </ion-toolbar>
         </ion-header>
-
         <ion-content v-if="!colors.length">
-            <!-- Zone de drop -->
             <div class="dropzone" @dragover.prevent @drop.prevent="handleDrop" @click="triggerFileInput">
                 <ion-icon :icon="cloudUploadOutline" size="large"></ion-icon>
                 <p>Glissez votre fichier .3mf ici ou cliquez pour parcourir</p>
                 <input ref="fileInputRef" type="file" accept=".3mf" @change="uploadFiles" hidden />
             </div>
-
         </ion-content>
         <div v-if="isUploading">
             <ion-item>
@@ -34,16 +31,11 @@
                             <ion-list-header>
                                 <ion-label>Filaments requis vs stock</ion-label>
                             </ion-list-header>
-
-                            <!-- En-têtes -->
                             <ion-item lines="none" class="header-row">
                                 <div class="col required-col"><strong>Requis</strong></div>
                                 <div class="col arrow-col"></div>
                                 <div class="col stock-col"><strong>En stock</strong></div>
-                                <!-- <div class="col distance-col"><strong>Distance</strong></div> -->
                             </ion-item>
-
-                            <!-- Lignes -->
                             <ion-item v-for="(m, idx) in matches" :key="idx"
                                 :class="{ missing: m.status === 'missing' }" lines="inset">
                                 <div class="col required-col">
@@ -58,7 +50,6 @@
                                         </div>
                                     </div>
                                 </div>
-
                                 <div class="col arrow-col">
                                     <ion-icon :icon="arrowForwardOutline" />
                                 </div>
@@ -76,78 +67,62 @@
                                                     </ion-select-option>
                                                 </ion-select>
                                             </div>
-
-                                            <!-- on conserve l'affichage de la sous-info couleur si on a un match -->
                                             <div class="sub" v-if="m.match && m.match.color">
                                                 <small>{{ normalizeHex(m.match.color) }}</small>
                                             </div>
                                         </div>
-                                        <!-- la pastille couleur -->
-
                                         <div class="swatch" :style="m.match
                                             ? { backgroundColor: m.match.color }
                                             : { backgroundColor: 'transparent', border: '1px dashed #999' }"></div>
                                     </div>
                                 </div>
-
-                                <!-- Colonne distance (pas sur de l'utiliser dans le produit fini) -->
-                                <!-- <div class="col distance-col">
-                                    <div v-if="m.match" class="distance">
-                                        (dist: {{ Math.round(m.distance) }})
-                                    </div>
-                                </div> -->
                             </ion-item>
                         </ion-list>
                     </ion-col>
-
                     <ion-col size="12" size-md="6" class="middle-panel">
-                        <ion-list  style="border-radius: 14px;" lines="none">
-                        <ion-card style="box-shadow: none">
-                            <ion-card-header>
-                                <ion-card-title>Détails du projet</ion-card-title>
-                            </ion-card-header>
-                            <ion-card-content>
-                                <ion-grid>
-                                    <!-- Nombre de pièces -->
-                                    <ion-row class="ion-align-items-center ion-justify-content-between">
-                                        <ion-col size="auto">
-                                            <strong>Nombre de pièces :</strong>
-                                        </ion-col>
-                                        <ion-col size="auto">
-                                            <ion-badge color="primary" font-size="1.2rem">{{ piecesCount }}</ion-badge>
-                                        </ion-col>
-                                    </ion-row>
-
-                                    <!-- Matériaux utilisés -->
-                                    <ion-row class="ion-margin-top">
-                                        <ion-col>
-                                            <strong>Matériaux utilisés</strong>
-                                        </ion-col>
-                                    </ion-row>
-                                    <ion-row>
-                                        <ion-col>
-                                            <ion-chip v-for="(mat, idx) in uniqueMaterials" :key="idx" outline
-                                                class="ion-margin-end ion-margin-bottom">
-                                                <ion-label>{{ mat }}</ion-label>
-                                            </ion-chip>
-                                        </ion-col>
-                                    </ion-row>
-                                </ion-grid>
-                            </ion-card-content>
-                        </ion-card>
-                    </ion-list>
+                        <ion-list style="border-radius: 14px;" lines="none">
+                            <ion-card style="box-shadow: none">
+                                <ion-card-header>
+                                    <ion-card-title>Détails du projet</ion-card-title>
+                                </ion-card-header>
+                                <ion-card-content>
+                                    <ion-grid>
+                                        <ion-row class="ion-align-items-center ion-justify-content-between">
+                                            <ion-col size="auto">
+                                                <strong>Nombre de pièces :</strong>
+                                            </ion-col>
+                                            <ion-col size="auto">
+                                                <ion-badge color="primary" font-size="1.2rem">{{ piecesCount
+                                                    }}</ion-badge>
+                                            </ion-col>
+                                        </ion-row>
+                                        <ion-row class="ion-margin-top">
+                                            <ion-col>
+                                                <strong>Matériaux utilisés</strong>
+                                            </ion-col>
+                                        </ion-row>
+                                        <ion-row>
+                                            <ion-col>
+                                                <ion-chip v-for="(mat, idx) in uniqueMaterials" :key="idx" outline
+                                                    class="ion-margin-end ion-margin-bottom">
+                                                    <ion-label>{{ mat }}</ion-label>
+                                                </ion-chip>
+                                            </ion-col>
+                                        </ion-row>
+                                    </ion-grid>
+                                </ion-card-content>
+                            </ion-card>
+                        </ion-list>
                     </ion-col>
                 </ion-row>
             </ion-grid>
         </ion-content>
-
-
-
     </ion-page>
 </template>
 
 <script setup>
-
+import api from '@/api'
+import { nextTick } from 'vue'
 import { ref, computed, onMounted, reactive } from 'vue'
 import {
     IonPage,
@@ -166,7 +141,6 @@ import {
 } from '@ionic/vue'
 import { cloudUploadOutline, arrowForwardOutline } from 'ionicons/icons'
 
-// --- états ---
 const rawFiles = ref([])
 const filaments = ref([])
 const isUploading = ref(false)
@@ -178,14 +152,11 @@ const piecesCount = ref([])
 const uniqueMaterials = ref([])
 const selectedAlternatives = reactive({})
 
-// --- config ---
 const DEBUG = true
 const COLOR_THRESHOLD = 100 // ajustable : plus haut = plus tolérant sur la distance couleur
 
-// --- ref DOM ---
 const fileInputRef = ref(null)
 
-// --- helpers couleur et matériau ---
 function normalizeHex(h) {
     if (!h || typeof h !== 'string') return null
     let hex = h.trim()
@@ -221,7 +192,7 @@ function normalizeMaterial(name) {
     if (!name || typeof name !== 'string') return ''
     return name
         .toLowerCase()
-        .replace(/bambu\s*/g, '') // enlever "Bambu" si présent
+        .replace(/bambu\s*/g, '')
         .trim()
 }
 
@@ -232,20 +203,13 @@ function materialMatches(required, stock) {
     return r === s || r.includes(s) || s.includes(r)
 }
 
-// --- chargement du stock ---
 const loadStock = async () => {
     try {
-        const res = await fetch('http://localhost:5000/api/filaments');
-        if (!res.ok) throw new Error(`Échec récupération stock (${res.status})`);
-        const json = await res.json();
+        const res = await api.get('/filaments');
+        const json = res.data;
         stockFilaments.value = Array.isArray(json) ? json : [];
 
-        // ⬇️ LOG du stock brut
-        console.log('Stock filaments raw:', stockFilaments.value);
-
-        // On force un tick pour que stockByFamily soit à jour
         await nextTick();
-        // ⬇️ LOG de la computed stockByFamily
         console.log('stockByFamily:', stockByFamily.value);
 
     } catch (e) {
@@ -257,8 +221,8 @@ const loadStock = async () => {
 const stockByFamily = computed(() => {
     const fams = {}
     stockFilaments.value.forEach(f => {
-        const norm = normalizeMaterial(f.filament_detailed_type) // ex. "pla matte white"
-        const family = norm.split(' ')[0]                        // → "pla"
+        const norm = normalizeMaterial(f.filament_detailed_type)
+        const family = norm.split(' ')[0]
         if (!fams[family]) fams[family] = new Set()
         fams[family].add(f.filament_detailed_type)
     })
@@ -273,7 +237,6 @@ onMounted(() => {
     loadStock()
 })
 
-// --- interaction fichier ---
 const triggerFileInput = () => {
     if (DEBUG) console.log('fileInputRef.value =', fileInputRef.value)
     if (fileInputRef.value) {
@@ -291,7 +254,6 @@ const handleDrop = (e) => {
     }
 }
 
-// --- upload / parsing 3MF ---
 const uploadFiles = async (event) => {
     if (event?.target?.files && event.target.files.length > 0) {
         rawFiles.value = [event.target.files[0]]
@@ -315,43 +277,33 @@ const uploadFiles = async (event) => {
     errorMsg.value = ''
 
     try {
-        const res = await fetch('http://localhost:5000/api/3mf/analyze', {
-            method: 'POST',
-            body: formData,
+        const res = await api.post('/3mf/analyze', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
         })
 
-        const text = await res.text()
-        let result = {}
-        try {
-            result = JSON.parse(text)
-        } catch {
-            throw new Error(`Réponse non JSON :\n${text}`)
-        }
+        const result = res.data
 
-        if (res.ok) {
-            colors.value = Array.isArray(result.colors) ? result.colors : []
-            materials.value = Array.isArray(result.materials) ? result.materials : []
-            piecesCount.value = result.pieces_count || 0
-            uniqueMaterials.value = Array.from(new Set(materials.value))
-            filaments.value = []
-            rawFiles.value = []
-            errorMsg.value = ''
-            if (DEBUG) {
-                console.log('Analyse 3MF:', { materials: materials.value, colors: colors.value })
-            }
-        } else {
-            errorMsg.value = result.error || 'Échec de l’import'
+        colors.value = Array.isArray(result.colors) ? result.colors : []
+        materials.value = Array.isArray(result.materials) ? result.materials : []
+        piecesCount.value = result.pieces_count || 0
+        uniqueMaterials.value = Array.from(new Set(materials.value))
+        filaments.value = []
+        rawFiles.value = []
+        errorMsg.value = ''
+
+        if (DEBUG) {
+            console.log('Analyse 3MF:', { materials: materials.value, colors: colors.value })
         }
     } catch (err) {
         console.error('Upload error', err)
-        alert(`Erreur réseau : ${err.message}`)
+        const msg = err.response?.data?.error || err.message
+        alert(`Erreur réseau : ${msg}`)
         errorMsg.value = 'Erreur réseau pendant l’analyse'
     } finally {
         isUploading.value = false
     }
 }
 
-// --- matching requis vs stock ---
 const matches = computed(() => {
 
     console.log('--- Recalcul matches ---');
@@ -486,11 +438,11 @@ const matches = computed(() => {
 }
 
 .stock-col ion-select {
-  --min-height: 0;
-  min-height: 0;
-  --padding-top: 0;
-  --padding-bottom: 0;
-  height: auto;
+    --min-height: 0;
+    min-height: 0;
+    --padding-top: 0;
+    --padding-bottom: 0;
+    height: auto;
 }
 
 .distance-col {

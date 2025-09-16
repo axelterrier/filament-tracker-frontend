@@ -17,10 +17,7 @@
 
 
 <script setup lang="ts">
-// Core Imports
 import { ref, watch } from 'vue';
-
-// Ionic Components
 import {
   IonPage,
   IonHeader,
@@ -33,21 +30,13 @@ import {
 
 import { useI18n } from 'vue-i18n';
 import { setDarkTheme } from '@/theme';
-
-// Custom Components
 import FilamentTable from '@/components/FilamentTable.vue';
-import { addOutline, codeOutline, handLeftOutline } from 'ionicons/icons';
 
-// Localization
 const { t } = useI18n();
-
-// Reactive State
 const dark = ref(localStorage.getItem('dark') === 'true');
 
-// Watchers
 watch(dark, (isDark) => setDarkTheme(isDark));
 </script>
-
 
 <style scoped>
 #container {

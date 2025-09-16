@@ -129,6 +129,8 @@
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js'
+import api from '@/api'
+
 Chart.register(ArcElement, Tooltip, Legend)
 
 import {
@@ -147,13 +149,14 @@ const router = useRouter()
 const selected = ref(new Set())
 
 async function fetchFilaments() {
-    try {
-        const res = await fetch('http://localhost:5000/api/filaments')
-        filaments.value = await res.json()
-    } catch (err) {
-        console.error('Erreur chargement filaments :', err)
-    }
+  try {
+    const res = await api.get('/filaments')
+    filaments.value = res.data
+  } catch (err) {
+    console.error('Erreur chargement filaments :', err)
+  }
 }
+
 
 onMounted(() => {
     fetchFilaments()
@@ -232,37 +235,33 @@ function bulkEdit() {
 }
 
 async function bulkDelete() {
-    const count = selectedCount.value
-    if (count === 0) return
-    const alert = await alertController.create({
-        header: 'Confirmation',
-        message: `Supprimer ${count} filament(s) sélectionné(s) ?`,
-        buttons: [
-            { text: 'Annuler', role: 'cancel' },
-            {
-                text: 'Supprimer',
-                role: 'destructive',
-                handler: async () => {
-                    try {
-                        const ids = Array.from(selected.value)
-                        await Promise.all(
-                            ids.map(id =>
-                                fetch(`http://localhost:5000/api/filaments/${id}`, { method: 'DELETE' })
-                                    .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`) })
-                            )
-                        )
-                        filaments.value = filaments.value.filter(f => !selected.value.has(f.id))
-                        selected.value = new Set()
-                        openActionId.value = null
-                    } catch (e) {
-                        console.error('Erreur suppression groupée :', e)
-                    }
-                }
-            }
-        ]
-    })
-    await alert.present()
+  const count = selectedCount.value
+  if (count === 0) return
+  const alert = await alertController.create({
+    header: 'Confirmation',
+    message: `Supprimer ${count} filament(s) sélectionné(s) ?`,
+    buttons: [
+      { text: 'Annuler', role: 'cancel' },
+      {
+        text: 'Supprimer',
+        role: 'destructive',
+        handler: async () => {
+          try {
+            const ids = Array.from(selected.value)
+            await Promise.all(ids.map(id => api.delete(`/filaments/${id}`)))
+            filaments.value = filaments.value.filter(f => !selected.value.has(f.id))
+            selected.value = new Set()
+            openActionId.value = null
+          } catch (e) {
+            console.error('Erreur suppression groupée :', e)
+          }
+        }
+      }
+    ]
+  })
+  await alert.present()
 }
+
 
 function bulkExport() {
     const ids = new Set(selected.value)
@@ -317,15 +316,17 @@ async function confirmDelete(filament) {
     await alert.present()
 }
 async function deleteFilament(filament) {
-    try {
-        const res = await fetch(`http://localhost:5000/api/filaments/${filament.id}`, { method: 'DELETE' })
-        if (!res.ok) return console.error('Erreur suppression HTTP:', res.status)
-        filaments.value = filaments.value.filter(f => f.id !== filament.id)
-        openActionId.value = null
-        selected.value.delete(filament.id)
-        selected.value = new Set(selected.value)
-    } catch (e) { console.error('Erreur suppression :', e) }
+  try {
+    await api.delete(`/filaments/${filament.id}`)
+    filaments.value = filaments.value.filter(f => f.id !== filament.id)
+    openActionId.value = null
+    selected.value.delete(filament.id)
+    selected.value = new Set(selected.value)
+  } catch (e) {
+    console.error('Erreur suppression :', e)
+  }
 }
+
 </script>
 
 <style>

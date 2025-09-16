@@ -5,10 +5,7 @@
         <ion-title>Importer des bobines</ion-title>
       </ion-toolbar>
     </ion-header>
-
     <ion-content class="ion-padding">
-
-      <!-- Zone de drop -->
       <div
         class="dropzone"
         @dragover.prevent
@@ -27,7 +24,6 @@
         />
       </div>
 
-      <!-- Liste des fichiers JSON valides -->
       <ion-list v-if="filaments.length">
         <ion-list-header>
           <ion-label>Fichiers chargés</ion-label>
@@ -47,7 +43,6 @@
         </ion-item>
       </ion-list>
 
-      <!-- Bouton d'import -->
       <ion-button
         expand="block"
         @click="uploadFiles"
@@ -56,7 +51,6 @@
       >
         Importer {{ rawFiles.length }} bobine(s)
       </ion-button>
-
     </ion-content>
   </ion-page>
 </template>
@@ -79,12 +73,13 @@ import {
   IonButton
 } from '@ionic/vue'
 import { cloudUploadOutline } from 'ionicons/icons'
+import api from '@/api'
 
 const router = useRouter()
 
 const fileInput = ref(null)
-const filaments = ref([])      // prévisualisation des JSON valides
-const rawFiles = ref([])       // fichiers à uploader
+const filaments = ref([]) 
+const rawFiles = ref([])
 
 const triggerFileInput = () => {
   fileInput.value.click()
@@ -126,35 +121,23 @@ const uploadFiles = async () => {
   }
 
   try {
-    const res = await fetch('http://localhost:5000/api/filaments/import', {
-      method: 'POST',
-      body: formData
+    const res = await api.post('/filaments/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
     })
 
-    const text = await res.text()
-    let result = {}
+    const result = res.data
+    alert(`✅ Importé : ${result.imported} | Ignorés : ${result.skipped}`)
 
-    try {
-      result = JSON.parse(text)
-    } catch {
-      throw new Error(`Réponse non JSON :\n${text}`)
-    }
+    filaments.value = []
+    rawFiles.value = []
 
-    if (res.ok) {
-      alert(`✅ Importé : ${result.imported} | Ignorés : ${result.skipped}`)
-
-      // Remise à zéro
-      filaments.value = []
-      rawFiles.value = []
-
-      // **Nouvelle ligne** : redirection vers /home
-      router.push('/home')
-    } else {
-      alert(`Erreur serveur : ${result.error || 'Échec de l’import'}`)
-    }
-
+    router.push('/home')
   } catch (err) {
-    alert(`Erreur réseau : ${err.message}`)
+    if (err.response) {
+      alert(`Erreur serveur : ${err.response.data?.error || 'Échec de l’import'}`)
+    } else {
+      alert(`Erreur réseau : ${err.message}`)
+    }
   }
 }
 </script>

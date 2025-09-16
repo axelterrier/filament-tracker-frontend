@@ -197,6 +197,7 @@ import {
   eyeOutline, eyeOffOutline
 } from 'ionicons/icons'
 import MqttHelpModal from '@/components/MqttHelpModal.vue'
+import api from '@/api'
 
 interface Language { value: string; text: string }
 interface Unit { value: string; text: string }
@@ -204,8 +205,6 @@ interface Unit { value: string; text: string }
 const store = useMainStore()
 const { darkMode } = storeToRefs(store)
 const { t, locale } = useI18n()
-
-const API_BASE = 'http://localhost:5000'
 
 const form = reactive({
   ip: '',
@@ -287,12 +286,8 @@ function onToggle(ev: CustomEvent) {
 }
 
 async function apiTest(payload: any) {
-  const res = await fetch(`${API_BASE}/api/mqtt/test`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-  })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data?.error || 'Test échoué')
-  return data
+  const res = await api.post('/mqtt/test', payload)
+  return res.data
 }
 
 async function checkNow() {
@@ -321,9 +316,7 @@ async function saveAndConnect() {
   }
   localStorage.setItem('mqtt_config', JSON.stringify(form))
   try {
-    await fetch(`${API_BASE}/api/mqtt/config`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form)
-    }).catch(() => { })
+    await api.post('/mqtt/config', form)
   } catch { }
   await checkNow()
 
@@ -362,6 +355,7 @@ onMounted(async () => {
 })
 onUnmounted(() => { if (pollTimer) clearInterval(pollTimer) })
 </script>
+
 
 <style scoped>
 .simple-bg {

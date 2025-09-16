@@ -1,7 +1,6 @@
 <template>
   <ion-app>
     <ion-page>
-      <!-- Barre globale -->
       <ion-header class="global-header">
         <ion-toolbar>
           <ion-buttons slot="start">
@@ -10,10 +9,8 @@
           <ion-title>Filament tracker</ion-title>
         </ion-toolbar>
       </ion-header>
-      <!-- Menu lattéral -->
       <ion-content fullscreen>
         <ion-split-pane content-id="main-content" when="lg">
-          <!-- Menu gauche -->
           <ion-menu content-id="main-content" type="reveal" :content-width="200">
             <ion-content>
               <ion-list lines="none">
@@ -50,7 +47,6 @@
               </ion-list>
             </ion-content>
           </ion-menu>
-          <!-- Zone de routes -->
           <ion-router-outlet id="main-content" />
         </ion-split-pane>
       </ion-content>
@@ -70,7 +66,6 @@ import {
 </script>
 
 <style>
-/* Hauteur de la barre globale (Ionic expose --ion-toolbar-height) */
 :root {
   --app-header-height: var(--ion-toolbar-height, 56px);
 }
@@ -81,13 +76,11 @@ import {
   border-bottom: 1px solid var(--ion-color-step-150);
 }
 
-/* Décale physiquement le conteneur du menu sous la barre du haut */
 ion-menu::part(container) {
   top: var(--app-header-height);
   height: calc(100% - var(--app-header-height));
 }
 
-/* Optionnel: largeur via variable plutôt que prop */
 
 ion-menu {
   width: auto;

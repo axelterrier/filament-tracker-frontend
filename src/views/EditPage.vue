@@ -16,7 +16,6 @@
     </ion-header>
 
     <ion-content fullscreen>
-      <!-- Skeleton -->
       <div v-if="!filament" class="container">
         <ion-skeleton-text animated style="width: 60%; height: 28px; margin: 16px 0;"></ion-skeleton-text>
         <ion-grid fixed>
@@ -37,9 +36,7 @@
         </ion-grid>
       </div>
 
-      <!-- Content -->
       <div v-else class="container">
-        <!-- EN-TÊTE / APERÇU -->
         <ion-card class="hero">
           <ion-card-content class="hero-content">
             <div class="hero-left">
@@ -75,11 +72,8 @@
           </ion-card-content>
         </ion-card>
 
-        <!-- GRILLE PRINCIPALE -->
         <ion-grid class="wide-grid">
           <ion-row class="cards-grid">
-
-            <!-- COL GAUCHE : MATÉRIAU & DIMENSIONS -->
             <ion-col size="12" size-lg="6">
               <ion-card class="card card--spacious">
                 <ion-card-header>
@@ -120,7 +114,6 @@
               </ion-card>
             </ion-col>
 
-            <!-- COL DROITE : STOCK / AMS -->
             <ion-col size="12" size-lg="6">
               <ion-card class="card card--spacious">
                 <ion-card-header>
@@ -164,7 +157,6 @@
               </ion-card>
             </ion-col>
 
-            <!-- TEMPÉRATURES -->
             <ion-col size="12">
               <ion-card class="card card--spacious">
                 <ion-card-header>
@@ -217,7 +209,6 @@
               </ion-card>
             </ion-col>
 
-            <!-- MÉTADONNÉES -->
             <ion-col size="12">
               <ion-card class="card card--spacious">
                 <ion-card-header>
@@ -239,7 +230,6 @@
                       </ion-item>
                     </div>
 
-                    <!-- NEW: nom textuel de la couleur -->
                     <div>
                       <label class="k">Nom de couleur</label>
                       <ion-item lines="none" class="editable">
@@ -256,13 +246,11 @@
         </ion-grid>
       </div>
 
-      <!-- Loaders / toasts -->
       <ion-loading :is-open="submitting" message="Enregistrement..." />
       <ion-toast :is-open="toast.open" :message="toast.msg" :color="toast.color" duration="2200"
         @didDismiss="toast.open=false" />
     </ion-content>
 
-    <!-- BARRE D'ACTIONS FIXE -->
     <ion-footer translucent>
       <ion-toolbar>
         <ion-buttons slot="start">
@@ -288,6 +276,7 @@ import {
   IonFooter, IonLoading, IonToast, IonProgressBar
 } from '@ionic/vue';
 import { colorPalette, informationCircle, time } from 'ionicons/icons';
+import api from '@/api'
 
 const icons = { colorPalette, informationCircle, time };
 
@@ -303,20 +292,17 @@ const prettyDate = (d) => {
 };
 
 onMounted(async () => {
-  const id = route.params.id;
+  const id = route.params.id
   try {
-    const res = await fetch(`http://localhost:5000/api/filaments/${id}`);
-    if (!res.ok) throw new Error(res.statusText);
-    const data = await res.json();
-    filament.value = { ...data };
-    original.value = JSON.parse(JSON.stringify(filament.value));
-    sanitizeStock();
+    const res = await api.get(`/filaments/${id}`)
+    filament.value = { ...res.data }
+    original.value = JSON.parse(JSON.stringify(filament.value))
+    sanitizeStock()
   } catch (e) {
-    console.error(e);
+    console.error(e)
   }
-});
+})
 
-// Recalcule % si grammes/poids changent
 watch(
   () => filament.value ? [filament.value.remaining_grams, filament.value.spool_weight] : [null, null],
   ([rg, sw]) => {
@@ -370,31 +356,26 @@ function clampPercent() {
   filament.value.remaining_percent = clamp(num(filament.value.remaining_percent), 0, 100);
 }
 
-// ENREGISTRER
 async function submit() {
-  if (!filament.value || submitting.value || !isDirty.value) return;
-  sanitizeStock(); clampPercent();
-  submitting.value = true;
-  const id = Number(route.params.id);
+  if (!filament.value || submitting.value || !isDirty.value) return
+  sanitizeStock()
+  clampPercent()
+  submitting.value = true
+  const id = Number(route.params.id)
+
   try {
-    const res = await fetch(`http://localhost:5000/api/filaments/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(filament.value)
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    original.value = JSON.parse(JSON.stringify(filament.value));
-    window.dispatchEvent(new Event('refresh-filaments'));
-    await navigateToList();
+    await api.put(`/filaments/${id}`, filament.value)   // <-- PUT via axios
+    original.value = JSON.parse(JSON.stringify(filament.value))
+    window.dispatchEvent(new Event('refresh-filaments'))
+    await navigateToList()
   } catch (e) {
-    console.error(e);
-    toast.value = { open: true, msg: 'Erreur lors de la mise à jour', color: 'danger' };
+    console.error(e)
+    toast.value = { open: true, msg: 'Erreur lors de la mise à jour', color: 'danger' }
   } finally {
-    submitting.value = false;
+    submitting.value = false
   }
 }
 
-// ANNULER
 async function cancel() {
   if (isDirty.value && !confirm('Annuler vos modifications ?')) return;
   await navigateToList();
@@ -404,7 +385,6 @@ async function cancel() {
 <style scoped>
 .container { padding: 12px 12px 28px; }
 
-/* HERO */
 .hero {
   --background: linear-gradient(135deg, var(--ion-color-step-50), var(--ion-color-step-150));
   border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,.12);

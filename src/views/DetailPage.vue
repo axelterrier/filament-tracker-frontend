@@ -10,7 +10,6 @@
     </ion-header>
 
     <ion-content fullscreen>
-      <!-- Loading state -->
       <div v-if="!filament" class="container">
         <ion-skeleton-text animated style="width: 60%; height: 28px; margin: 16px 0;"></ion-skeleton-text>
         <ion-grid fixed>
@@ -31,9 +30,7 @@
         </ion-grid>
       </div>
 
-      <!-- Content -->
       <div v-else class="container">
-        <!-- Hero -->
         <ion-card class="hero">
           <ion-card-content class="hero-content">
             <div class="hero-left">
@@ -89,13 +86,8 @@
             </div>
           </ion-card-content>
         </ion-card>
-
-        <!-- Grid cards -->
-        <!-- remplace ton <ion-grid fixed> ... </ion-grid> -->
         <ion-grid class="wide-grid">
           <ion-row class="cards-grid">
-
-            <!-- Général (prend de la place pour le texte) -->
             <ion-col size="12" size-lg="6">
               <ion-card class="card card--spacious">
                 <ion-card-header>
@@ -122,8 +114,6 @@
                 </ion-card-content>
               </ion-card>
             </ion-col>
-
-            <!-- Températures -->
             <ion-col size="12" size-lg="6">
               <ion-card class="card card--spacious">
                 <ion-card-header>
@@ -153,8 +143,6 @@
                 </ion-card-content>
               </ion-card>
             </ion-col>
-
-            <!-- Dimensions (côte à côte avec Général) -->
             <ion-col size="12" size-lg="6">
               <ion-card class="card card--spacious">
                 <ion-card-header>
@@ -189,10 +177,6 @@
                 </ion-card-content>
               </ion-card>
             </ion-col>
-
-
-
-            <!-- AMS Sync -->
             <ion-col size="12" size-lg="6">
               <ion-card class="card card--spacious">
                 <ion-card-header>
@@ -227,8 +211,6 @@
                 </ion-card-content>
               </ion-card>
             </ion-col>
-
-            <!-- Métadonnées (pleine largeur) -->
             <ion-col size="12">
               <ion-card class="card card--spacious">
                 <ion-card-header>
@@ -255,12 +237,8 @@
                 </ion-card-content>
               </ion-card>
             </ion-col>
-
           </ion-row>
         </ion-grid>
-
-
-
       </div>
     </ion-content>
   </ion-page>
@@ -279,6 +257,7 @@ import {
 import {
   colorPalette, informationCircle, time, analytics, hardwareChip, thermometer
 } from 'ionicons/icons';
+import api from '@/api'
 
 const icons = { colorPalette, informationCircle, time, analytics, hardwareChip, thermometer };
 
@@ -287,7 +266,6 @@ const filament = ref(null);
 
 const formatValue = (value, unit) => {
   if (value === null || value === undefined || value === '') return '—';
-  // Affichage propre des nombres (évite 1.000000)
   const n = Number(value);
   const out = Number.isFinite(n) ? (Math.round(n * 100) / 100).toString() : String(value);
   return unit ? `${out} ${unit}` : out;
@@ -303,19 +281,19 @@ const prettyDate = (d) => {
 };
 
 onMounted(async () => {
-  const id = route.params.id;
+  const id = route.params.id
   try {
-    const res = await fetch(`http://localhost:5000/api/filaments/${id}`);
-    if (!res.ok) throw new Error(res.statusText);
-    filament.value = await res.json();
+    const { data } = await api.get(`/filaments/${encodeURIComponent(id)}`)
+    filament.value = data
   } catch (e) {
-    console.error(e);
+    console.error('Erreur chargement filament :', e.response?.status, e.message)
+    filament.value = null
   }
-});
+})
+
 </script>
 
 <style scoped>
-/* Layout */
 .container {
   padding: 12px 12px 28px;
 }
@@ -416,7 +394,6 @@ onMounted(async () => {
   font-size: 1.2rem;
 }
 
-/* Cards */
 .card {
   border-radius: 16px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
@@ -440,7 +417,6 @@ ion-card-content {
   padding-top: 8px;
 }
 
-/* Items */
 .item {
   display: flex;
   align-items: baseline;
@@ -493,7 +469,6 @@ ion-card-content {
   margin: 10px 0 4px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .hero-content {
     flex-direction: column;
@@ -528,10 +503,8 @@ ion-chip[outline] {
   border-radius: 999px;
 }
 
-/* Plus large et plus aéré */
 .wide-grid {
   max-width: 1400px;
-  /* avant ~1100-1200 */
   margin: 0 auto;
 }
 
@@ -548,7 +521,6 @@ ion-chip[outline] {
   row-gap: 20px;
 }
 
-/* Paires clé/valeur plus lisibles */
 .grid-2.roomy,
 .grid-3.roomy {
   gap: 18px 22px;
@@ -578,7 +550,6 @@ ion-chip[outline] {
   font-size: 1.14rem;
 }
 
-/* Bloc “stack” : libellé au-dessus, parfait pour du texte long */
 .stack {
   display: grid;
   gap: 14px;
@@ -601,7 +572,6 @@ ion-chip[outline] {
   word-break: break-all;
 }
 
-/* Petites retouches responsives */
 @media (max-width: 992px) {
   .wide-grid {
     padding: 0 10px;

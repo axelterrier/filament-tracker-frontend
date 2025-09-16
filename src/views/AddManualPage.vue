@@ -462,37 +462,30 @@ function generateUid() {
 
 // Form Submission
 async function submit() {
-  // Assign UIDs before sending
+  // Assigner les UIDs avant envoi
   filament.value.uid = generateUid();
   filament.value.tray_uid = generateUid();
 
   try {
-    const res = await fetch('http://localhost:5000/api/filaments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(filament.value)
-    });
+    const res = await api.post('/filaments', filament.value);
 
-    if (res.status === 400) {
-      const err = await res.json();
-      console.error('400 Bad Request:', err.error);
-      alert(`${t('error')}: ${err.error}`);
-      return;
-    }
-
-    if (!res.ok) {
-      console.error('Error adding filament:', res.status);
-      return;
-    }
-
-    const data = await res.json();
-    console.log('Added:', data);
+    console.log('Added:', res.data);
     window.dispatchEvent(new Event('refresh-filaments'));
     router.push('/home');
   } catch (error) {
-    console.error('Submission error:', error);
+    if (error.response) {
+      if (error.response.status === 400) {
+        console.error('400 Bad Request:', error.response.data.error);
+        alert(`${t('error')}: ${error.response.data.error}`);
+      } else {
+        console.error('Erreur API:', error.response.status, error.response.data);
+      }
+    } else {
+      console.error('Submission error:', error);
+    }
   }
 }
+
 </script>
 
 

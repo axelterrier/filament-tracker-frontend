@@ -11,7 +11,6 @@
 
     <ion-content fullscreen class="ion-padding simple-bg">
       <ion-grid fixed>
-        <!-- État chargement / erreur -->
         <ion-row v-if="loading || error">
           <ion-col size="12">
             <ion-card class="card clean-card">
@@ -23,7 +22,6 @@
           </ion-col>
         </ion-row>
 
-        <!-- Ligne 1 : KPIs -->
         <ion-row class="gap-row">
           <ion-col size="12" size-md="4">
             <ion-card class="card kpi">
@@ -62,7 +60,6 @@
           </ion-col>
         </ion-row>
 
-        <!-- Ligne 2 : Donuts -->
         <ion-row class="gap-row">
           <ion-col size="12" size-md="6">
             <ion-card class="card">
@@ -87,7 +84,6 @@
           </ion-col>
         </ion-row>
 
-        <!-- Ligne 3 : Top couleurs + bobines faibles -->
         <ion-row class="gap-row">
           <ion-col size="12" size-md="7">
             <ion-card class="card">
@@ -135,11 +131,9 @@ import {
   IonCardSubtitle, IonCardContent, IonText, IonSkeletonText, IonList, IonItem, IonLabel, IonBadge
 } from '@ionic/vue'
 import VueApexCharts from 'vue3-apexcharts'
+import api from '@/api'
 
-// composant apexcharts
 const apexchart = VueApexCharts
-
-const API_BASE = 'http://localhost:5000'
 
 interface Filament {
   id: number
@@ -156,20 +150,16 @@ const filaments = ref<Filament[]>([])
 
 onMounted(async () => {
   try {
-    const res = await fetch(`${API_BASE}/api/filaments`)
-    if (!res.ok) throw new Error('API filaments en erreur')
-    const data = await res.json()
-    filaments.value = Array.isArray(data) ? data : []
+    const res = await api.get('/filaments')
+    filaments.value = Array.isArray(res.data) ? res.data : []
   } catch (e: any) {
-    error.value = e?.message || 'Erreur inconnue'
+    error.value = e?.response?.data?.error || e?.message || 'Erreur inconnue'
   } finally {
     loading.value = false
   }
 })
 
-/* ===================== Normalisation ===================== */
-
-const DEFAULT_SPOOL_NET_G = 1000 // adapte si tu connais le poids net de tes bobines
+const DEFAULT_SPOOL_NET_G = 1000
 
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n))
 
@@ -181,7 +171,6 @@ function guessNominalWeight(f: Filament): number {
   return DEFAULT_SPOOL_NET_G
 }
 
-/** Liste dérivée safe pour toute l’UI */
 const displayFilaments = computed<Filament[]>(() =>
   (filaments.value || []).map(f => {
     const rawW = f.remaining_weight ?? 0
@@ -200,8 +189,6 @@ const displayFilaments = computed<Filament[]>(() =>
   })
 )
 
-/* ===================== KPI ===================== */
-
 const totalWeightKg = computed(() =>
   displayFilaments.value.reduce((sum, f) => sum + (f.remaining_weight || 0), 0) / 1000
 )
@@ -215,8 +202,6 @@ const avgRemaining = computed(() => {
   return s / arr.length
 })
 
-/* ===================== Utils de groupement ===================== */
-
 function groupSum<T extends string | null>(key: (f: Filament) => T) {
   const map = new Map<string, number>()
   for (const f of displayFilaments.value) {
@@ -225,8 +210,6 @@ function groupSum<T extends string | null>(key: (f: Filament) => T) {
   }
   return map
 }
-
-/* ===================== Donuts ===================== */
 
 const donutMaterial = computed(() => {
   const g = groupSum(f => f.filament_type)
@@ -258,8 +241,6 @@ const donutSubtype = computed(() => {
   }
 })
 
-/* ===================== Bar top couleurs ===================== */
-
 const barTopColors = computed(() => {
   const map = new Map<string, number>()
   for (const f of displayFilaments.value) {
@@ -281,15 +262,12 @@ const barTopColors = computed(() => {
   }
 })
 
-/* ===================== Bobines faibles ===================== */
-
 const lowSpools = computed(() =>
   displayFilaments.value
     .filter(f => (f.remaining_percent ?? 0) < 25)
     .sort((a, b) => (a.remaining_percent ?? 0) - (b.remaining_percent ?? 0))
 )
 </script>
-
 
 <style scoped>
 .simple-bg { background: var(--ion-background-color); }
